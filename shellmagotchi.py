@@ -4,8 +4,6 @@ import time
 import random
 
 
-
-
 class Shellmagotchi:
     def __init__(self, name):
         self.name = name
