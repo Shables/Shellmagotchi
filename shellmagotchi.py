@@ -92,11 +92,12 @@ class Shellmagotchi:
         print("Gotchi socialized")
 
 # Continously update and track the changing needs  
-    def update_needs(self):
+    def update_needs(self, hunger, thirst, sleep, hygiene, bladder, socialize):
         current_time = time.time()
         elapsed_time = current_time - self.last_update_time
         self.needs_decay(elapsed_time)
         self.save_last_update_time()
+        print(f"Current Needs -- Hunger: {hunger}, Thirst: {thirst}, Sleep: {sleep}, Hygiene: {hygiene}, Bladder: {bladder}, Socialize: {socialize}")
 
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second
