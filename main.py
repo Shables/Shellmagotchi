@@ -1,10 +1,12 @@
 import PySide6 as QT
+from PySide6.QtWidgets import QApplication
 import os
 import sys
 import time
 import random
 import threading
 from shellmagotchi import Shellmagotchi as SM
+from game_window import ShellmagotchiGame
 
 gotchi = SM("Tester")
 
@@ -20,21 +22,10 @@ decay_thread.start()
 def main(): 
     while True:
         gotchi.update_needs()
-        user_input = str(input("Type any command: \n"))
-
-        if user_input == 'feed':
-            gotchi.hunger()
-        elif user_input == 'water':
-            gotchi.thirst()
-        elif user_input == 'bathe':
-            gotchi.hygiene()
-        elif user_input == 'tuck-in':
-            gotchi.tuck_in()
-        elif user_input == 'potty':
-            gotchi.bladder()
-        elif user_input == 'socialize':
-            gotchi.socialize()
 
 
 if __name__ == '__main__':
-    main()
+    app = QApplication(sys.argv)
+    game = ShellmagotchiGame()
+    game.show()
+    sys.exit(app.exec())

@@ -5,6 +5,7 @@ import random
 
 
 
+
 class Shellmagotchi:
     def __init__(self, name):
         self.name = name
@@ -68,7 +69,7 @@ class Shellmagotchi:
 
 # Functions for satiating the needs for gotchi 
     def feed(self):
-        self.hunger += 20
+        self.hunger += int(20)
         print("Gotchi fed")
 
     def give_water(self):
@@ -87,22 +88,28 @@ class Shellmagotchi:
         self.bladder += 20
         print("Gotchi pottied")
 
-    def socialize(self):
+    def social(self):
         self.socialize += 20
         print("Gotchi socialized")
 
 # Continously update and track the changing needs  
-    def update_needs(self, hunger, thirst, sleep, hygiene, bladder, socialize):
+    def update_needs(self):
         current_time = time.time()
         elapsed_time = current_time - self.last_update_time
         self.needs_decay(elapsed_time)
         self.save_last_update_time()
-        print(f"Current Needs -- Hunger: {hunger}, Thirst: {thirst}, Sleep: {sleep}, Hygiene: {hygiene}, Bladder: {bladder}, Socialize: {socialize}")
+        print(f"Current Needs -- Hunger: {self.hunger}, Thirst: {self.thirst}, Sleep: {self.sleep}, Hygiene: {self.hygiene}, Bladder: {self.bladder}, Socialize: {self.socialize}")
 
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second
         decay_amount = decay_rate * elapsed_time
-        self.hunger = max(0, self._hunger - decay_amount)
+        self.hunger = round(max(0, self._hunger - decay_amount))
+        self.thirst = round(max(0, self._thirst - decay_amount))
+        self.sleep = round(max(0, self._sleep - decay_amount))
+        self.hygiene = round(max(0, self._hygiene - decay_amount))
+        self.bladder = round(max(0, self._bladder - decay_amount))
+        self.socialize = round(max(0, self._socialize - decay_amount))
+
 
 # Save/Load current time to seperate file to track needs decay
     def save_last_update_time(self):
