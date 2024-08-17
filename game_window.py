@@ -19,7 +19,7 @@ class ShellmagotchiGame(QMainWindow):
         # Top 2/7: Character display
         self.character_frame = QFrame()
         self.character_frame.setFrameShape(QFrame.Box)
-        self.character_frame.setFixedHeight(200)  # Adjust as needed
+        self.character_frame.setFixedHeight(150)
         self.character_layout = QVBoxLayout(self.character_frame)
         self.character_label = QLabel()
         pixmap = QPixmap("assets/egg.png")
@@ -36,7 +36,7 @@ class ShellmagotchiGame(QMainWindow):
             label = QLabel(f"{need.capitalize()}:")
             progress_bar = QProgressBar()
             progress_bar.setTextVisible(True)
-            progress_bar.setFixedWidth(150)
+            progress_bar.setFixedWidth(200)
             self.progress_bars[need] = progress_bar
 
             #Create a horizontal Layout for each need
@@ -86,11 +86,11 @@ class ShellmagotchiGame(QMainWindow):
             self.gotchi.give_water()
         elif command == 'bathe':
             self.gotchi.bathe()
-        elif command == 'tuck-in':
+        elif command == 'bedtime':
             self.gotchi.tuck_in()
         elif command == 'potty':
             self.gotchi.potty()
-        elif command == 'socialize':
+        elif command in ['socialize', 'play']:
             self.gotchi.social()
         else:
             self.add_info("Unknown command")

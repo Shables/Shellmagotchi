@@ -15,6 +15,8 @@ class Shellmagotchi:
         self._socialize = 100
         self.life_stage = 'Egg'
         self.last_update_time = time.time()
+        self.happiness = 100
+
 
 # Private values for ensuring needs stay equal to and between 0 and 100
     @property
@@ -67,27 +69,27 @@ class Shellmagotchi:
 
 # Functions for satiating the needs for gotchi 
     def feed(self):
-        self.hunger += int(20)
+        self.hunger += 100
         print("Gotchi fed")
 
     def give_water(self):
-        self.thirst += 20
+        self.thirst += 100
         print("Gotchi thirsted")
 
     def tuck_in(self):
-        self.sleep += 20
+        self.sleep += 100
         print("Gotchi slept")
 
     def bathe(self):
-        self.hygiene += 20
+        self.hygiene += 100
         print("Gotchi bathed")
 
     def potty(self):
-        self.bladder += 20
+        self.bladder += 100
         print("Gotchi pottied")
 
     def social(self):
-        self.socialize += 20
+        self.socialize += 100
         print("Gotchi socialized")
 
 # Continously update and track the changing needs  
@@ -101,15 +103,15 @@ class Shellmagotchi:
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second
         decay_amount = decay_rate * elapsed_time
-        self.hunger = round(max(0, self._hunger - decay_amount))
-        self.thirst = round(max(0, self._thirst - decay_amount))
-        self.sleep = round(max(0, self._sleep - decay_amount))
-        self.hygiene = round(max(0, self._hygiene - decay_amount))
-        self.bladder = round(max(0, self._bladder - decay_amount))
-        self.socialize = round(max(0, self._socialize - decay_amount))
+        self.hunger = max(0, self.hunger - (decay_amount * 0.1))
+        self.thirst = max(0, self.thirst - (decay_amount * 0.5))
+        self.sleep = max(0, self.sleep - decay_amount)
+        self.hygiene = max(0, self.hygiene - decay_amount)
+        self.bladder = max(0, self.bladder - decay_amount)
+        self.socialize = max(0, self.socialize - decay_amount)
 
 
-# Save/Load current time to seperate file to track needs decay
+# Save/Load current time to seperate file to track needs decay while user away
     def save_last_update_time(self):
         self.last_update_time = time.time()
         try:

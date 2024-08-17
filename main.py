@@ -13,7 +13,15 @@ from game_window import ShellmagotchiGame
 
 # TODO: Implement happiness feature and if happiness drops too low then gotchi runs away.. 
 # every 1min it will randomly decide to come back, also its needs will replenish at a rate of 1% per 1min 
-# and the chance is based on how high needs are. 
+# and the chance is based on how high needs are. -- Runaway should be a product of current needs vs max needs
+
+# TODO: Balance the needs decay values, implement the death if Hunger or Thirst == 0  
+
+# TODO: Minigames like guess the number, guess the word, simple math problems, hide and seek, etc. Increases socialize stat
+
+# TODO: Different lifestages: Child, Teen, Adult, Mature, Elder, [dead]. Lifestages affect needs decay as well as flavor text - simple
+
+# TODO: Implement cute movement animations to try and give the gotchi some life
 
 gotchi = SM("Tester")
 
