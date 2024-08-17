@@ -23,6 +23,8 @@ from game_window import ShellmagotchiGame
 
 # TODO: Implement cute movement animations to try and give the gotchi some life
 
+# TODO: Implement death and rebirth feature -- SHOULD INDIVIDUAL PERSONALITY STATS BE A THING????
+
 gotchi = SM("Tester")
 
 def handle_decay():
