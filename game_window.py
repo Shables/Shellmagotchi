@@ -27,7 +27,7 @@ class ShellmagotchiGame(QMainWindow):
         self.character_layout = QVBoxLayout(self.character_frame)
         self.character_label = QLabel()
         self.character_layout.addStretch()
-        self.character_label.setContentsMargins(10, 10, 10, 10)
+        #self.character_label.setContentsMargins(10, 10, 10, 10)
         pixmap = QPixmap("assets/egg.png")
         self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.character_layout.addWidget(self.character_label, alignment=Qt.AlignCenter)
@@ -92,7 +92,8 @@ class ShellmagotchiGame(QMainWindow):
         # Display life stage?
         self.life_stage_label = QLabel(f"Life Stage: {self.gotchi.life_stage}")
         self.life_stage_label.setStyleSheet("color: grey;")
-        self.character_layout.addWidget(self.life_stage_label, alignment=Qt.AlignCenter)
+        self.life_stage_label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
+        self.character_layout.addWidget(self.life_stage_label, alignment=Qt.AlignBottom | Qt.AlignRight)
     
     def update_ui(self):
         self.gotchi.update_happiness(self.gotchi.happiness_decay())
