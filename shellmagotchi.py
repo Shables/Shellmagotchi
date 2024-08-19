@@ -15,7 +15,7 @@ class Shellmagotchi:
         self._socialize = 100
         self.life_stage = 'Egg'
         self.last_update_time = time.time()
-        self.happiness = 100
+        self._happiness = 100
 
 
 # Private values for ensuring needs stay equal to and between 0 and 100
@@ -67,6 +67,14 @@ class Shellmagotchi:
     def socialize(self, value):
         self._socialize = max(0, min(100, value))
 
+    @property
+    def happiness(self):
+        return self._happiness
+    
+    @happiness.setter
+    def happiness(self, value):
+        self._happiness = max(0, min(100, value))
+
 # Functions for satiating the needs for gotchi 
     def feed(self):
         self.hunger += 100
@@ -100,6 +108,7 @@ class Shellmagotchi:
         self.save_last_update_time()
         print(f"Current Needs -- Hunger: {self.hunger}, Thirst: {self.thirst}, Sleep: {self.sleep}, Hygiene: {self.hygiene}, Bladder: {self.bladder}, Socialize: {self.socialize}")
 
+
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second
         decay_amount = decay_rate * elapsed_time
@@ -109,6 +118,31 @@ class Shellmagotchi:
         self.hygiene = max(0, self.hygiene - decay_amount)
         self.bladder = max(0, self.bladder - decay_amount)
         self.socialize = max(0, self.socialize - decay_amount)
+
+# Reduce Happiness Faster Based on Need Breakpoints
+# 75% < x = No lost happiness/Happy
+# 50% - 74 <= Slow Loss
+# 25% - 49% <= Fast Loss
+# 0% - 24% <= Near-instant loss
+    def happiness_decay(self):
+        max_needs = int(600) # Total Maxed Needs
+        current_needs = int(self.hunger + self.thirst + self.sleep + self.hygiene + self.bladder + self.socialize)
+        percentage_needs_met = (current_needs / max_needs) * 100
+        print(f"Current Percentage of Needs Met: {percentage_needs_met}")
+    
+        if percentage_needs_met >= 75.0:
+            happiness_decay_rate = 1.0
+        elif percentage_needs_met >= 50.0:
+            happiness_decay_rate = 0.85
+        elif percentage_needs_met >= 25:
+            happiness_decay_rate = 0.55
+        elif percentage_needs_met >= 0:
+            happiness_decay_rate = 0.1
+        else:
+            print("Error with Happiness Decay method")
+
+        self.happiness = max(0, (self.happiness * (self.happiness * (1 - happiness_decay_rate))))
+        print(f"Newly calculated happiness: {self.happiness}")
 
 
 # Save/Load current time to seperate file to track needs decay while user away

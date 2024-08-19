@@ -39,9 +39,15 @@ decay_thread.start()
 def main(): 
     while True:
         gotchi.update_needs()
+        gotchi.happiness_decay()
+        time.sleep(1)
 
 
 if __name__ == '__main__':
+    main_thread = threading.Thread(target=main)
+    main_thread.daemon = True
+    main_thread.start()
+
     app = QApplication(sys.argv)
     game = ShellmagotchiGame()
     game.show()

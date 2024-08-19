@@ -111,10 +111,6 @@ class ShellmagotchiGame(QMainWindow):
         info = f"Current Needs -- Hunger: {self.gotchi.hunger}, Thirst: {self.gotchi.thirst}, "
         info += f"Sleep: {self.gotchi.sleep}, Hygiene: {self.gotchi.hygiene}, "
         info += f"Bladder: {self.gotchi.bladder}, Socialize: {self.gotchi.socialize}"
+
         self.add_info(info)
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    game = ShellmagotchiGame()
-    game.show()
-    sys.exit(app.exec())
