@@ -2,6 +2,8 @@ import os
 import sys
 import time
 import random
+import threading
+from datetime import datetime
 
 
 class Shellmagotchi:
@@ -15,7 +17,11 @@ class Shellmagotchi:
         self._socialize = 100
         self.life_stage = 'Egg'
         self.last_update_time = time.time()
+        self.birth_time = datetime.now()
         self._happiness = 100
+        self.age = 0
+        self.alive = True
+        self.runaway = False
 
 
 # Private values for ensuring needs stay equal to and between 0 and 100
@@ -108,7 +114,6 @@ class Shellmagotchi:
         self.save_last_update_time()
         print(f"Current Needs -- Hunger: {self.hunger}, Thirst: {self.thirst}, Sleep: {self.sleep}, Hygiene: {self.hygiene}, Bladder: {self.bladder}, Socialize: {self.socialize}")
 
-
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second
         decay_amount = decay_rate * elapsed_time
@@ -125,25 +130,57 @@ class Shellmagotchi:
 # 25% - 49% <= Fast Loss
 # 0% - 24% <= Near-instant loss
     def happiness_decay(self):
-        max_needs = int(600) # Total Maxed Needs
-        current_needs = int(self.hunger + self.thirst + self.sleep + self.hygiene + self.bladder + self.socialize)
-        percentage_needs_met = (current_needs / max_needs) * 100
-        print(f"Current Percentage of Needs Met: {percentage_needs_met}")
-    
-        if percentage_needs_met >= 75.0:
+        current_needs = sum([self.hunger, self.thirst, self.sleep, self.hygiene, self.bladder, self.socialize]) # Total Maxed Needs
+        percent_needs_met = (current_needs / 600) * 100
+        print(f"Current Percentage of Needs Met: {percent_needs_met}")
+
+        if percent_needs_met >= 75.0:
             happiness_decay_rate = 1.0
-        elif percentage_needs_met >= 50.0:
-            happiness_decay_rate = 0.85
-        elif percentage_needs_met >= 25:
-            happiness_decay_rate = 0.55
-        elif percentage_needs_met >= 0:
-            happiness_decay_rate = 0.1
+        elif percent_needs_met >= 50.0:
+            happiness_decay_rate = 0.99
+        elif percent_needs_met >= 25:
+            happiness_decay_rate = 0.96
+        elif percent_needs_met >= 0:
+            happiness_decay_rate = 0.91
         else:
             print("Error with Happiness Decay method")
+        return happiness_decay_rate
 
-        self.happiness = max(0, (self.happiness * (self.happiness * (1 - happiness_decay_rate))))
-        print(f"Newly calculated happiness: {self.happiness}")
+    def update_happiness(self, happiness_decay_rate):
+        self.happiness = self.happiness * happiness_decay_rate
+        print(f"Current Happiness: {self.happiness}")
 
+# Check for Runaway
+    def check_runaway(self):
+        if self.happiness < 20:
+            if random.random() < 0.01:
+                self.runaway = True
+                print(f"{self.name} has run away!")
+        elif self.runaway:
+            if random.random() < 0.01 * (self.happiness / 100): # Return chance based on happiness
+                self.runaway = False
+                self.replenish_needs()
+                print(f"{self.name} has returned!")
+
+# Replenish All Needs
+    def replenish_needs(self):
+        for need in ['hunger', 'thirst', 'sleep', 'hygiene', 'bladder', 'socialize']:
+            setattr(self, need, min(getattr(self, need) + 1, 100))
+
+# Check for death
+    def check_death(self):
+        if self.hunger <= 0 or self.thirst <= 0:
+            print("WARNING: GOTCHI DYING OF THIRST AND HUNGER")
+            threading.timer(60).start()
+            if self.hunger <= 0 or self.thirst <= 0:
+                print(f"{self.name} has died!")
+            else:
+                print(f"{self.name} has started to recover from malnutrition")
+
+# Life Stages
+    def update_life_stage(self):
+        current_time = datetime.now()
+        self.age = (current_time - self.birth_time).total_seconds() / 60 # Age in minutes
 
 # Save/Load current time to seperate file to track needs decay while user away
     def save_last_update_time(self):

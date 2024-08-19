@@ -25,30 +25,26 @@ from game_window import ShellmagotchiGame
 
 # TODO: Implement death and rebirth feature -- SHOULD INDIVIDUAL PERSONALITY STATS BE A THING????
 
-gotchi = SM("Tester")
 
-def handle_decay():
+def main_loop(gotchi, game):
     while True:
         gotchi.update_needs()
+        happiness_decay_rate = gotchi.happiness_decay()
+        gotchi.update_happiness(happiness_decay_rate)
+        gotchi.check_runaway()
+        gotchi.check_death()
+        gotchi.update_life_stage()
+        game.update_ui()
         time.sleep(1)
-
-decay_thread = threading.Thread(target=handle_decay)
-decay_thread.daemon = True
-decay_thread.start()
-
-def main(): 
-    while True:
-        gotchi.update_needs()
-        gotchi.happiness_decay()
-        time.sleep(1)
-
 
 if __name__ == '__main__':
-    main_thread = threading.Thread(target=main)
+    app = QApplication(sys.argv)
+    gotchi = SM("Tester")
+    game = ShellmagotchiGame(gotchi)
+
+    main_thread = threading.Thread(target=main_loop, args=(gotchi, game))
     main_thread.daemon = True
     main_thread.start()
 
-    app = QApplication(sys.argv)
-    game = ShellmagotchiGame()
     game.show()
     sys.exit(app.exec())

@@ -6,14 +6,18 @@ from PySide6.QtCore import Qt, QTimer
 from shellmagotchi import Shellmagotchi
 
 class ShellmagotchiGame(QMainWindow):
-    def __init__(self):
+    def __init__(self, gotchi=None):
         super().__init__()
+        self.gotchi = gotchi
+        self.init_ui()
+        self.update_ui() # Updated right after initialization
+
+    def init_ui(self):
         self.setWindowTitle("Tamagotchi Game")
         self.setGeometry(100, 100, 600, 700)  # Increased height to accommodate all elements
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
-
         self.layout = QVBoxLayout(self.central_widget)
 
         # Top 2/7: Character display
@@ -37,8 +41,7 @@ class ShellmagotchiGame(QMainWindow):
             progress_bar = QProgressBar()
             progress_bar.setTextVisible(True)
             progress_bar.setFixedWidth(200)
-            self.progress_bars[need] = progress_bar
-
+       
             #Create a horizontal Layout for each need
             h_layout = QHBoxLayout()
             h_layout.addWidget(label)
@@ -46,6 +49,7 @@ class ShellmagotchiGame(QMainWindow):
             h_layout.addStretch()
 
             self.stats_layout.addWidget(progress_bar, i // 3, i % 3)
+            self.progress_bars[need] = progress_bar
 
         self.stats_layout.setColumnStretch(0, 1)
         self.stats_layout.setColumnStretch(1, 1)
@@ -75,6 +79,14 @@ class ShellmagotchiGame(QMainWindow):
         self.update_terminal_timer = QTimer(self)
         self.update_terminal_timer.timeout.connect(self.update_terminal)
         self.update_terminal_timer.start(10000)
+
+    def update_ui(self):
+        self.progress_bars['hunger'].setValue(self.gotchi.hunger)
+        self.progress_bars['thirst'].setValue(self.gotchi.thirst)
+        self.progress_bars['sleep'].setValue(self.gotchi.sleep)
+        self.progress_bars['hygiene'].setValue(self.gotchi.sleep)
+        self.progress_bars['bladder'].setValue(self.gotchi.bladder)
+        self.progress_bars['socialize'].setValue(self.gotchi.socialize)
 
     def process_command(self):
         command = self.input_box.text().strip().lower()
