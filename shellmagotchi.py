@@ -4,6 +4,7 @@ import time
 import random
 import threading
 from datetime import datetime
+from colorama import Fore, Back, Style
 
 
 class Shellmagotchi:
@@ -106,13 +107,16 @@ class Shellmagotchi:
         self.socialize += 100
         print("Gotchi socialized")
 
+    def clamp(value, minimum=0, maximum=100):
+        return max(minimum, min(maximum, value))
+
 # Continously update and track the changing needs  
     def update_needs(self):
         current_time = time.time()
         elapsed_time = current_time - self.last_update_time
         self.needs_decay(elapsed_time)
         self.save_last_update_time()
-        print(f"Current Needs -- Hunger: {self.hunger}, Thirst: {self.thirst}, Sleep: {self.sleep}, Hygiene: {self.hygiene}, Bladder: {self.bladder}, Socialize: {self.socialize}")
+        print(f"Current Needs -- Hunger: {self.hunger:.2f}, Thirst: {self.thirst:.2f}, Sleep: {self.sleep:.2f}, Hygiene: {self.hygiene:.2f}, Bladder: {self.bladder:.2f}, Socialize: {self.socialize:.2f}")
 
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second
@@ -132,7 +136,7 @@ class Shellmagotchi:
     def happiness_decay(self):
         current_needs = sum([self.hunger, self.thirst, self.sleep, self.hygiene, self.bladder, self.socialize]) # Total Maxed Needs
         percent_needs_met = (current_needs / 600) * 100
-        print(f"Current Percentage of Needs Met: {percent_needs_met}")
+        print(Fore.RED + f"Current Percentage of Needs Met: {percent_needs_met:.2f}" + Style.RESET_ALL)
 
         if percent_needs_met >= 75.0:
             happiness_decay_rate = 1.0
@@ -148,12 +152,12 @@ class Shellmagotchi:
 
     def update_happiness(self, happiness_decay_rate):
         self.happiness = self.happiness * happiness_decay_rate
-        print(f"Current Happiness: {self.happiness}")
-
+        print(Fore.YELLOW + f"Current Happiness: {self.happiness:.2f}" + Style.RESET_ALL)
+        
 # Check for Runaway
     def check_runaway(self):
         if self.happiness < 20:
-            if random.random() < 0.01:
+            if random.random() < 0.10:
                 self.runaway = True
                 print(f"{self.name} has run away!")
         elif self.runaway:
@@ -161,6 +165,8 @@ class Shellmagotchi:
                 self.runaway = False
                 self.replenish_needs()
                 print(f"{self.name} has returned!")
+            else:
+                self.happiness += 1
 
 # Replenish All Needs
     def replenish_needs(self):
@@ -181,6 +187,19 @@ class Shellmagotchi:
     def update_life_stage(self):
         current_time = datetime.now()
         self.age = (current_time - self.birth_time).total_seconds() / 60 # Age in minutes
+        if self.age < 1:
+            self.life_stage = 'Egg'
+        elif self.age < 7:
+            self.life_stage = 'Child'
+        elif self.age < 14:
+            self.life_stage = 'Teen'
+        elif self.age < 21:
+            self.life_stage = 'Adult'
+        elif self.age < 30:
+            self.life_stage = 'Mature'
+        else:
+            self.life_stage = 'Elder'
+
 
 # Save/Load current time to seperate file to track needs decay while user away
     def save_last_update_time(self):

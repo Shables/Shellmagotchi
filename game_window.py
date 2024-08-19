@@ -1,8 +1,8 @@
 import sys
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                QHBoxLayout, QFrame, QTextEdit, QLineEdit, QProgressBar, QGridLayout, QLabel)
-from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QPixmap, QColor
+from PySide6.QtCore import Qt, QTimer, Signal
 from shellmagotchi import Shellmagotchi
 
 class ShellmagotchiGame(QMainWindow):
@@ -14,7 +14,7 @@ class ShellmagotchiGame(QMainWindow):
 
     def init_ui(self):
         self.setWindowTitle("Tamagotchi Game")
-        self.setGeometry(100, 100, 600, 700)  # Increased height to accommodate all elements
+        self.setGeometry(100, 100, 800, 800)
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -26,6 +26,8 @@ class ShellmagotchiGame(QMainWindow):
         self.character_frame.setFixedHeight(150)
         self.character_layout = QVBoxLayout(self.character_frame)
         self.character_label = QLabel()
+        self.character_layout.addStretch()
+        self.character_label.setContentsMargins(10, 10, 10, 10)
         pixmap = QPixmap("assets/egg.png")
         self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.character_layout.addWidget(self.character_label, alignment=Qt.AlignCenter)
@@ -36,25 +38,31 @@ class ShellmagotchiGame(QMainWindow):
         self.stats_layout = QGridLayout(self.stats_frame)
         self.progress_bars = {}
         needs = ['hunger', 'thirst', 'sleep', 'hygiene', 'bladder', 'socialize']
+        bar_colors = [QColor(255, 0, 0), QColor(0, 255, 0), QColor(0, 0, 255), QColor(255, 255, 0), QColor(255, 165, 0), QColor(255, 192, 203)]
+        
         for i, need in enumerate(needs):
             label = QLabel(f"{need.capitalize()}:")
             progress_bar = QProgressBar()
             progress_bar.setTextVisible(True)
-            progress_bar.setFixedWidth(200)
-       
-            #Create a horizontal Layout for each need
-            h_layout = QHBoxLayout()
-            h_layout.addWidget(label)
-            h_layout.addWidget(progress_bar)
-            h_layout.addStretch()
+            progress_bar.setFixedWidth(300)
+            progress_bar.setStyleSheet(f"QProgressBar::chunk {{background-color: {bar_colors[i].name()}; }}")
 
-            self.stats_layout.addWidget(progress_bar, i // 3, i % 3)
             self.progress_bars[need] = progress_bar
 
-        self.stats_layout.setColumnStretch(0, 1)
-        self.stats_layout.setColumnStretch(1, 1)
-        self.stats_layout.setColumnStretch(2, 1)        
+            row = i // 3
+            col = i % 3
+            self.stats_layout.addWidget(label, row, col * 2)
+            self.stats_layout.addWidget(progress_bar, row, col * 2 + 1)
+       
+        # Happiness Display
+        self.happiness_bar = QProgressBar()
+        self.happiness_bar.setTextVisible(True)
+        self.happiness_bar.setStyleSheet("QProgressBar::chunk {background-color: #FFFF00; }") # Yellow?
+        self.layout.addWidget(QLabel("Happiness:"), alignment=Qt.AlignCenter)
+        self.layout.addWidget(self.happiness_bar)
+
         self.layout.addWidget(self.stats_frame)
+
 
         # Bottom 4/7: Game information
         self.info_frame = QTextEdit()
@@ -78,15 +86,24 @@ class ShellmagotchiGame(QMainWindow):
         # Timer for updating the terminal
         self.update_terminal_timer = QTimer(self)
         self.update_terminal_timer.timeout.connect(self.update_terminal)
-        self.update_terminal_timer.start(10000)
+        self.update_terminal_timer.start(1000)
 
+
+        # Display life stage?
+        self.life_stage_label = QLabel(f"Life Stage: {self.gotchi.life_stage}")
+        self.life_stage_label.setStyleSheet("color: grey;")
+        self.character_layout.addWidget(self.life_stage_label, alignment=Qt.AlignCenter)
+    
     def update_ui(self):
-        self.progress_bars['hunger'].setValue(self.gotchi.hunger)
-        self.progress_bars['thirst'].setValue(self.gotchi.thirst)
-        self.progress_bars['sleep'].setValue(self.gotchi.sleep)
-        self.progress_bars['hygiene'].setValue(self.gotchi.sleep)
-        self.progress_bars['bladder'].setValue(self.gotchi.bladder)
-        self.progress_bars['socialize'].setValue(self.gotchi.socialize)
+        self.gotchi.update_happiness(self.gotchi.happiness_decay())
+        for need, bar in self.progress_bars.items():
+            value = getattr(self.gotchi, need)
+            bar.setValue(value)
+
+        self.happiness_bar.setValue(int(self.gotchi.happiness))
+        self.life_stage_label.setText(self.gotchi.life_stage)
+
+        self.update_terminal()
 
     def process_command(self):
         command = self.input_box.text().strip().lower()
@@ -100,7 +117,7 @@ class ShellmagotchiGame(QMainWindow):
             self.gotchi.bathe()
         elif command == 'bedtime':
             self.gotchi.tuck_in()
-        elif command == 'potty':
+        elif command in ['potty', 'bathroom', 'pee']:
             self.gotchi.potty()
         elif command in ['socialize', 'play']:
             self.gotchi.social()
@@ -118,11 +135,11 @@ class ShellmagotchiGame(QMainWindow):
         for need, bar in self.progress_bars.items():
             value = getattr(self.gotchi, need)
             bar.setValue(value)
-
+        
     def update_terminal(self):        
-        info = f"Current Needs -- Hunger: {self.gotchi.hunger}, Thirst: {self.gotchi.thirst}, "
-        info += f"Sleep: {self.gotchi.sleep}, Hygiene: {self.gotchi.hygiene}, "
-        info += f"Bladder: {self.gotchi.bladder}, Socialize: {self.gotchi.socialize}"
+        info = f"Current Needs -- Hunger: {self.gotchi.hunger:.2f}, Thirst: {self.gotchi.thirst:.2f}, "
+        info += f"Sleep: {self.gotchi.sleep:.2f}, Hygiene: {self.gotchi.hygiene:.2f}, "
+        info += f"Bladder: {self.gotchi.bladder:.2f}, Socialize: {self.gotchi.socialize:.2f}"
 
         self.add_info(info)
 

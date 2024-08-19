@@ -7,7 +7,7 @@ import random
 import threading
 from shellmagotchi import Shellmagotchi as SM
 from game_window import ShellmagotchiGame
-
+                                                                                               
 
 # Ugh still trying to get the formatting in QT correct -- Got the multithreading working though so the needs continously update and the user can put in an input at any time.
 
@@ -31,6 +31,7 @@ def main_loop(gotchi, game):
         gotchi.update_needs()
         happiness_decay_rate = gotchi.happiness_decay()
         gotchi.update_happiness(happiness_decay_rate)
+        print(f"Main happiness: {gotchi.happiness}")
         gotchi.check_runaway()
         gotchi.check_death()
         gotchi.update_life_stage()
