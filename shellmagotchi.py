@@ -8,8 +8,6 @@ from colorama import Fore, Back, Style
 
 
 class Shellmagotchi:
-    instances = 0 # Debug
-
     def __init__(self, name):
         self.name = name
         self._hunger = 100
@@ -25,7 +23,6 @@ class Shellmagotchi:
         self.age = 0
         self.alive = True
         self.runaway = False
-        Shellmagotchi.instances += 1
 
 # Private values for ensuring needs stay equal to and between 0 and 100
     @property
@@ -192,10 +189,11 @@ class Shellmagotchi:
 
 # Life Stages
     def update_life_stage(self):
+        age_seconds = 1
         age_minutes = 60
         age_days = 86400
         current_time = datetime.now()
-        self.age = (current_time - self.birth_time).total_seconds() / age_minutes # Age in minutes
+        self.age = (current_time - self.birth_time).total_seconds() / age_seconds # Age in minutes
         if self.age < 1:
             self.life_stage = 'Egg'
         elif self.age < 7:

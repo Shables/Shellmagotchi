@@ -8,7 +8,7 @@ import threading
 from shellmagotchi import Shellmagotchi as SM
 from game_window import ShellmagotchiGame
                                                                                                
-# TODO: Balance the needs decay values, implement the death if Hunger or Thirst == 0  
+# TODO: Balance the needs decay values
 
 # TODO: Minigames like guess the number, guess the word, simple math problems, hide and seek, etc. Increases socialize stat
 
@@ -16,7 +16,7 @@ from game_window import ShellmagotchiGame
 
 # TODO: Implement cute movement animations to try and give the gotchi some life
 
-# TODO: Implement death and rebirth feature 
+# TODO: Implement rebirth feature 
 
 # TODO: Fix time save time load feature so it accurately updates values and uses save states
 
@@ -35,8 +35,7 @@ def main_loop(gotchi, game):
             gotchi.check_death()
             gotchi.update_life_stage()
             game.update_ui()
-        print(SM.instances) # Debug
-        time.sleep(5)
+        time.sleep(1)
 
 def start_main_loop(gotchi, game):
     main_thread = threading.Thread(target=main_loop, args=(gotchi, game))

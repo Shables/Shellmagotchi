@@ -31,9 +31,6 @@ class ShellmagotchiGame(QMainWindow):
         self.character_layout = QVBoxLayout(self.character_frame)
         self.character_label = QLabel()
         self.character_layout.addStretch()
-        #self.character_label.setContentsMargins(10, 10, 10, 10)
-        #pixmap = QPixmap("assets/egg.png")
-        #self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.character_layout.addWidget(self.character_label, alignment=Qt.AlignCenter)
         self.layout.addWidget(self.character_frame)
 
@@ -80,17 +77,6 @@ class ShellmagotchiGame(QMainWindow):
         self.input_box.setPlaceholderText("Enter command...")
         self.input_box.returnPressed.connect(self.process_command)
         self.layout.addWidget(self.input_box)
-
-        # Set up timer for updating stats
-#        self.update_timer = QTimer(self)
-#        self.update_timer.timeout.connect(self.update_ui) # Changed from self.update_progress_bars
-#        self.update_timer.start(500)  # Update every 5 seconds
-
-        # Timer for updating the terminal
-#        self.update_terminal_timer = QTimer(self)
-#        self.update_terminal_timer.timeout.connect(self.update_terminal)
-#        self.update_terminal_timer.start(1000)
-
 
         # Display life stage, after initialized
         self.life_stage_label = QLabel()
@@ -164,9 +150,7 @@ class ShellmagotchiGame(QMainWindow):
     def add_info(self, text):
         self.info_frame.append(text)
     
-    def update_terminal(self):
-        print("update_terminal called")    
-        traceback.print_stack()   
+    def update_terminal(self): 
         if self.gotchi:    
             info = f"Current Needs -- Hunger: {self.gotchi.hunger:.2f}, Thirst: {self.gotchi.thirst:.2f}, "
             info += f"Sleep: {self.gotchi.sleep:.2f}, Hygiene: {self.gotchi.hygiene:.2f}, "
