@@ -12,7 +12,7 @@ class ShellmagotchiGame(QMainWindow):
         super().__init__()
         self.gotchi = gotchi
         self.init_ui()
-        self.update_ui() # Updated right after initialization
+        #self.update_ui() # Updated right after initialization
 
     def init_ui(self):
         self.setWindowTitle("Tamagotchi Game")
@@ -30,8 +30,8 @@ class ShellmagotchiGame(QMainWindow):
         self.character_label = QLabel()
         self.character_layout.addStretch()
         #self.character_label.setContentsMargins(10, 10, 10, 10)
-        pixmap = QPixmap("assets/egg.png")
-        self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        #pixmap = QPixmap("assets/egg.png")
+        #self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.character_layout.addWidget(self.character_label, alignment=Qt.AlignCenter)
         self.layout.addWidget(self.character_frame)
 
@@ -77,9 +77,6 @@ class ShellmagotchiGame(QMainWindow):
         self.input_box.returnPressed.connect(self.process_command)
         self.layout.addWidget(self.input_box)
 
-        # Initialize Shellmagotchi
-        self.gotchi = Shellmagotchi("Tester")
-
         # Set up timer for updating stats
         self.update_timer = QTimer(self)
         self.update_timer.timeout.connect(self.update_progress_bars)
@@ -97,6 +94,13 @@ class ShellmagotchiGame(QMainWindow):
         self.life_stage_label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         self.character_layout.addWidget(self.life_stage_label, alignment=Qt.AlignBottom | Qt.AlignRight)
     
+        # Hide the character image and stats at start
+        self.character_label.setVisible(False)
+        self.stats_frame.setVisible(False)
+
+        self.add_info("Woah! You found an egg!")
+        self.add_info("What would you like to name it?")
+
     def update_ui(self):
         self.gotchi.update_happiness(self.gotchi.happiness_decay())
         for need, bar in self.progress_bars.items():
@@ -113,24 +117,40 @@ class ShellmagotchiGame(QMainWindow):
     def process_command(self):
         command = self.input_box.text().strip().lower()
         self.input_box.clear()
+       
+        if not self.gotchi:
+            name = self.input_box.text().strip()
+            if name:
+                self.gotchi = Shellmagotchi(name)
+                self.add_info(f"Take good care of {name}!")
 
-        if command in ['feed', 'food', 'breakfast', 'lunch', 'dinner', 'snack']:
-            self.gotchi.feed()
-        elif command in ['water', 'drink', 'thirst', 'give water']:
-            self.gotchi.give_water()
-        elif command in ['bathe', 'wash', 'bath', 'shower']:
-            self.gotchi.bathe()
-        elif command in ['bedtime', 'tuckin', 'tuck-in', 'sleepy']:
-            self.gotchi.tuck_in()
-        elif command in ['potty', 'bathroom', 'pee']:
-            self.gotchi.potty()
-        elif command in ['socialize', 'play']:
-            self.gotchi.social()
-        else:
-            self.add_info("Unknown command")
+                self.character_label.setVisible(True)
+                self.stats_frame.setVisible(True)
 
-        self.update_progress_bars()
-        self.update_terminal()
+                self.update_progress_bars()
+                self.update_terminal()
+                self.update_character_image()
+
+        elif self.gotchi: # Only Handle These Commands when Gotchi is True
+            if command in ['feed', 'food', 'breakfast', 'lunch', 'dinner', 'snack']:
+                self.gotchi.feed()
+            elif command in ['water', 'drink', 'thirst', 'give water']:
+                self.gotchi.give_water()
+            elif command in ['bathe', 'wash', 'bath', 'shower']:
+                self.gotchi.bathe()
+            elif command in ['bedtime', 'tuckin', 'tuck-in', 'sleepy']:
+                self.gotchi.tuck_in()
+            elif command in ['potty', 'bathroom', 'pee']:
+                self.gotchi.potty()
+            elif command in ['socialize', 'play']:
+                self.gotchi.social()
+            else:
+                self.add_info("Unknown command")
+
+
+    def update_character_image(self):
+        pixmap = QPixmap(f"assets/{self.gotchi.life_stage.lower()}.png")
+        self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
     def add_info(self, text):
         self.info_frame.append(text)
