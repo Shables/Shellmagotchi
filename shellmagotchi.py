@@ -157,7 +157,8 @@ class Shellmagotchi:
 # Check for Runaway
     def check_runaway(self):
         if self.happiness < 20:
-            if random.random() < 0.10:
+            runaway_probability = max(0, min(1, (20 - self.happiness) / 20)) # Probably broken
+            if random.random() < runaway_probability:
                 self.runaway = True
                 print(f"{self.name} has run away!")
         elif self.runaway:
@@ -181,6 +182,8 @@ class Shellmagotchi:
             if self.hunger <= 0 or self.thirst <= 0:
                 print(f"{self.name} has died!")
                 self.alive = False
+                print("A new egg appears")
+                self.__init__(self.name)
             else:
                 print(f"{self.name} has started to recover from malnutrition")
 

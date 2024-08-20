@@ -106,6 +106,8 @@ class ShellmagotchiGame(QMainWindow):
         self.happiness_bar.setValue(int(self.gotchi.happiness))
         self.life_stage_label.setText(self.gotchi.life_stage)
 
+        self.character_label.setVisible(self.gotchi.alive) # Show gotchi image when alive
+        self.character_label.setVisible(not self.gotchi.runaway) # Hide Gotchi image when runaway
         self.update_terminal()
 
     def process_command(self):
