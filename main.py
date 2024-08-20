@@ -31,9 +31,12 @@ from game_window import ShellmagotchiGame
 def main_loop(gotchi, game):
     while True:
         if gotchi:
+            print("Main loop gotchi True")
             gotchi.update_needs()
+            print("Main Loop update needs called")
             happiness_decay_rate = gotchi.happiness_decay()
             gotchi.update_happiness(happiness_decay_rate)
+            print(f"Main loop happiness: {gotchi.happiness}")
             gotchi.check_runaway()
             gotchi.check_death()
             gotchi.update_life_stage()
@@ -43,7 +46,7 @@ def main_loop(gotchi, game):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     gotchi = None
-    game = ShellmagotchiGame(gotchi)
+    game = ShellmagotchiGame()
 
     main_thread = threading.Thread(target=main_loop, args=(gotchi, game))
     main_thread.daemon = True

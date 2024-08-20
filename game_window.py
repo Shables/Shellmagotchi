@@ -88,48 +88,54 @@ class ShellmagotchiGame(QMainWindow):
         self.update_terminal_timer.start(1000)
 
 
-        # Display life stage?
-        self.life_stage_label = QLabel(f"Life Stage: {self.gotchi.life_stage}")
+        # Display life stage, after initialized
+        self.life_stage_label = QLabel()
         self.life_stage_label.setStyleSheet("color: grey;")
         self.life_stage_label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         self.character_layout.addWidget(self.life_stage_label, alignment=Qt.AlignBottom | Qt.AlignRight)
-    
-        # Hide the character image and stats at start
-        self.character_label.setVisible(False)
-        self.stats_frame.setVisible(False)
+        self.life_stage_label.setVisible(False)
 
         self.add_info("Woah! You found an egg!")
         self.add_info("What would you like to name it?")
+        
+        # Hide the character image and stats at start
+        self.character_label.setVisible(False)
+        self.stats_frame.setVisible(False)
+        self.happiness_bar.setVisible(False)
 
     def update_ui(self):
-        self.gotchi.update_happiness(self.gotchi.happiness_decay())
-        for need, bar in self.progress_bars.items():
-            value = getattr(self.gotchi, need)
-            bar.setValue(value)
+        if self.gotchi:
+            self.gotchi.update_happiness(self.gotchi.happiness_decay())
+            for need, bar in self.progress_bars.items():
+                value = getattr(self.gotchi, need)
+                bar.setValue(value)
 
-        self.happiness_bar.setValue(int(self.gotchi.happiness))
-        self.life_stage_label.setText(self.gotchi.life_stage)
+            self.happiness_bar.setValue(int(self.gotchi.happiness))
+            self.life_stage_label.setText(self.gotchi.life_stage)
 
-        self.character_label.setVisible(self.gotchi.alive) # Show gotchi image when alive
-        self.character_label.setVisible(not self.gotchi.runaway) # Hide Gotchi image when runaway
-        self.update_terminal()
+            self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
+            self.update_terminal()
 
     def process_command(self):
         command = self.input_box.text().strip().lower()
         self.input_box.clear()
        
         if not self.gotchi:
-            name = self.input_box.text().strip()
+            name = command.title()
+            # name = self.input_box.text().strip()
             if name:
                 self.gotchi = Shellmagotchi(name)
                 self.add_info(f"Take good care of {name}!")
 
+                self.happiness_bar.setVisible(True)
+                self.life_stage_label.setVisible(True)
                 self.character_label.setVisible(True)
                 self.stats_frame.setVisible(True)
-
+                self.update_character_image()
                 self.update_progress_bars()
                 self.update_terminal()
-                self.update_character_image()
+                self.update_ui()
+                
 
         elif self.gotchi: # Only Handle These Commands when Gotchi is True
             if command in ['feed', 'food', 'breakfast', 'lunch', 'dinner', 'snack']:
@@ -147,24 +153,28 @@ class ShellmagotchiGame(QMainWindow):
             else:
                 self.add_info("Unknown command")
 
-
     def update_character_image(self):
-        pixmap = QPixmap(f"assets/{self.gotchi.life_stage.lower()}.png")
-        self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        if self.gotchi:
+            pixmap = QPixmap(f"assets/{self.gotchi.life_stage.lower()}.png")
+            self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
     def add_info(self, text):
         self.info_frame.append(text)
 
     def update_progress_bars(self):
-        self.gotchi.update_needs()
-        for need, bar in self.progress_bars.items():
-            value = getattr(self.gotchi, need)
-            bar.setValue(value)
+        if self.gotchi:
+            print("game window update needs")
+            self.gotchi.update_needs()
+            print("game window udpated needs")
+            for need, bar in self.progress_bars.items():
+                value = getattr(self.gotchi, need)
+                bar.setValue(value)
         
     def update_terminal(self):        
-        info = f"Current Needs -- Hunger: {self.gotchi.hunger:.2f}, Thirst: {self.gotchi.thirst:.2f}, "
-        info += f"Sleep: {self.gotchi.sleep:.2f}, Hygiene: {self.gotchi.hygiene:.2f}, "
-        info += f"Bladder: {self.gotchi.bladder:.2f}, Socialize: {self.gotchi.socialize:.2f}"
+        if self.gotchi:    
+            info = f"Current Needs -- Hunger: {self.gotchi.hunger:.2f}, Thirst: {self.gotchi.thirst:.2f}, "
+            info += f"Sleep: {self.gotchi.sleep:.2f}, Hygiene: {self.gotchi.hygiene:.2f}, "
+            info += f"Bladder: {self.gotchi.bladder:.2f}, Socialize: {self.gotchi.socialize:.2f}"
 
-        self.add_info(info)
+            self.add_info(info)
 
