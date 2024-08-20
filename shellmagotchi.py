@@ -24,7 +24,6 @@ class Shellmagotchi:
         self.alive = True
         self.runaway = False
 
-
 # Private values for ensuring needs stay equal to and between 0 and 100
     @property
     def hunger(self):
@@ -32,7 +31,7 @@ class Shellmagotchi:
     
     @hunger.setter
     def hunger(self, value):
-        self._hunger = max(0, min(100, value))
+        self._hunger = self.clamp(value)
 
     @property
     def thirst(self):
@@ -40,7 +39,7 @@ class Shellmagotchi:
     
     @thirst.setter
     def thirst(self, value):
-        self._thirst = max(0, min(100, value))
+        self._thirst = self.clamp(value)
 
     @property
     def sleep(self):
@@ -48,7 +47,7 @@ class Shellmagotchi:
     
     @sleep.setter
     def sleep(self, value):
-        self._sleep = max(0, min(100, value))
+        self._sleep = self.clamp(value)
 
     @property
     def hygiene(self):
@@ -56,7 +55,7 @@ class Shellmagotchi:
     
     @hygiene.setter
     def hygiene(self, value):
-        self._hygiene = max(0, min(100, value))
+        self._hygiene = self.clamp(value)
 
     @property
     def bladder(self):
@@ -64,7 +63,7 @@ class Shellmagotchi:
     
     @bladder.setter
     def bladder(self, value):
-        self._bladder = max(0, min(100, value))
+        self._bladder = self.clamp(value)
 
     @property
     def socialize(self):
@@ -72,7 +71,7 @@ class Shellmagotchi:
     
     @socialize.setter
     def socialize(self, value):
-        self._socialize = max(0, min(100, value))
+        self._socialize = self.clamp(value)
 
     @property
     def happiness(self):
@@ -80,7 +79,7 @@ class Shellmagotchi:
     
     @happiness.setter
     def happiness(self, value):
-        self._happiness = max(0, min(100, value))
+        self._happiness = self.clamp(value)
 
 # Functions for satiating the needs for gotchi 
     def feed(self):
@@ -107,6 +106,7 @@ class Shellmagotchi:
         self.socialize += 100
         print("Gotchi socialized")
 
+    @staticmethod
     def clamp(value, minimum=0, maximum=100):
         return max(minimum, min(maximum, value))
 
@@ -180,13 +180,16 @@ class Shellmagotchi:
             threading.timer(60).start()
             if self.hunger <= 0 or self.thirst <= 0:
                 print(f"{self.name} has died!")
+                self.alive = False
             else:
                 print(f"{self.name} has started to recover from malnutrition")
 
 # Life Stages
     def update_life_stage(self):
+        age_minutes = 60
+        age_days = 86400
         current_time = datetime.now()
-        self.age = (current_time - self.birth_time).total_seconds() / 60 # Age in minutes
+        self.age = (current_time - self.birth_time).total_seconds() / age_minutes # Age in minutes
         if self.age < 1:
             self.life_stage = 'Egg'
         elif self.age < 7:

@@ -5,6 +5,8 @@ from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtCore import Qt, QTimer, Signal
 from shellmagotchi import Shellmagotchi
 
+color_red = QColor(255, 0, 0)  # TODO: The rest of the colors
+
 class ShellmagotchiGame(QMainWindow):
     def __init__(self, gotchi=None):
         super().__init__()
@@ -38,7 +40,7 @@ class ShellmagotchiGame(QMainWindow):
         self.stats_layout = QGridLayout(self.stats_frame)
         self.progress_bars = {}
         needs = ['hunger', 'thirst', 'sleep', 'hygiene', 'bladder', 'socialize']
-        bar_colors = [QColor(255, 0, 0), QColor(0, 255, 0), QColor(0, 0, 255), QColor(255, 255, 0), QColor(255, 165, 0), QColor(255, 192, 203)]
+        bar_colors = [color_red, QColor(0, 255, 0), QColor(0, 0, 255), QColor(255, 255, 0), QColor(255, 165, 0), QColor(255, 192, 203)]
         
         for i, need in enumerate(needs):
             label = QLabel(f"{need.capitalize()}:")
@@ -110,13 +112,13 @@ class ShellmagotchiGame(QMainWindow):
         command = self.input_box.text().strip().lower()
         self.input_box.clear()
 
-        if command == 'feed':
+        if command in ['feed', 'food', 'breakfast', 'lunch', 'dinner', 'snack']:
             self.gotchi.feed()
-        elif command == 'water':
+        elif command in ['water', 'drink', 'thirst', 'give water']:
             self.gotchi.give_water()
-        elif command == 'bathe':
+        elif command in ['bathe', 'wash', 'bath', 'shower']:
             self.gotchi.bathe()
-        elif command == 'bedtime':
+        elif command in ['bedtime', 'tuckin', 'tuck-in', 'sleepy']:
             self.gotchi.tuck_in()
         elif command in ['potty', 'bathroom', 'pee']:
             self.gotchi.potty()
