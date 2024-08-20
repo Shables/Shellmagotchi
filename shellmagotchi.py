@@ -8,6 +8,8 @@ from colorama import Fore, Back, Style
 
 
 class Shellmagotchi:
+    instances = 0 # Debug
+
     def __init__(self, name):
         self.name = name
         self._hunger = 100
@@ -23,6 +25,7 @@ class Shellmagotchi:
         self.age = 0
         self.alive = True
         self.runaway = False
+        Shellmagotchi.instances += 1
 
 # Private values for ensuring needs stay equal to and between 0 and 100
     @property

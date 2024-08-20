@@ -1,4 +1,5 @@
 import sys
+import traceback
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                QHBoxLayout, QFrame, QTextEdit, QLineEdit, QProgressBar, QGridLayout, QLabel)
 from PySide6.QtGui import QPixmap, QColor
@@ -58,16 +59,16 @@ class ShellmagotchiGame(QMainWindow):
             self.stats_layout.addWidget(progress_bar, row, col * 2 + 1)
        
         # Happiness Display
+        self.happiness_label = QLabel("Happiness:")
+        self.happiness_label.setVisible(False)
         self.happiness_bar = QProgressBar()
         self.happiness_bar.setTextVisible(True)
         self.happiness_bar.setStyleSheet("QProgressBar::chunk {background-color: #FFFF00; }") # Yellow?
-        self.happiness_label = QLabel("Happiness:")
-        self.layout.addWidget(self.happiness_label, alignment=Qt.AlignCenter)
-        self.happiness_label.setVisible(True)
 
+
+        self.layout.addWidget(self.happiness_label, alignment=Qt.AlignCenter)
         self.layout.addWidget(self.happiness_bar)
         self.layout.addWidget(self.stats_frame)
-
 
         # Bottom 4/7: Game information
         self.info_frame = QTextEdit()
@@ -81,14 +82,14 @@ class ShellmagotchiGame(QMainWindow):
         self.layout.addWidget(self.input_box)
 
         # Set up timer for updating stats
-        self.update_timer = QTimer(self)
-        self.update_timer.timeout.connect(self.update_ui) # Changed from self.update_progress_bars
-        self.update_timer.start(500)  # Update every 5 seconds
+#        self.update_timer = QTimer(self)
+#        self.update_timer.timeout.connect(self.update_ui) # Changed from self.update_progress_bars
+#        self.update_timer.start(500)  # Update every 5 seconds
 
         # Timer for updating the terminal
-        self.update_terminal_timer = QTimer(self)
-        self.update_terminal_timer.timeout.connect(self.update_terminal)
-        self.update_terminal_timer.start(1000)
+#        self.update_terminal_timer = QTimer(self)
+#        self.update_terminal_timer.timeout.connect(self.update_terminal)
+#        self.update_terminal_timer.start(1000)
 
 
         # Display life stage, after initialized
@@ -118,7 +119,6 @@ class ShellmagotchiGame(QMainWindow):
 
             self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
             self.update_terminal()
-#            self.gotchi.update_needs()
 
     def process_command(self):
         command = self.input_box.text().strip().lower()
@@ -137,8 +137,6 @@ class ShellmagotchiGame(QMainWindow):
                 self.character_label.setVisible(True)
                 self.stats_frame.setVisible(True)
                 self.update_character_image()
-#                self.update_progress_bars()
-                self.update_terminal()
                 self.update_ui()
                 
 
@@ -166,7 +164,9 @@ class ShellmagotchiGame(QMainWindow):
     def add_info(self, text):
         self.info_frame.append(text)
     
-    def update_terminal(self):        
+    def update_terminal(self):
+        print("update_terminal called")    
+        traceback.print_stack()   
         if self.gotchi:    
             info = f"Current Needs -- Hunger: {self.gotchi.hunger:.2f}, Thirst: {self.gotchi.thirst:.2f}, "
             info += f"Sleep: {self.gotchi.sleep:.2f}, Hygiene: {self.gotchi.hygiene:.2f}, "

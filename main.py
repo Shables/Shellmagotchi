@@ -8,12 +8,6 @@ import threading
 from shellmagotchi import Shellmagotchi as SM
 from game_window import ShellmagotchiGame
                                                                                                
-# Ugh still trying to get the formatting in QT correct -- Got the multithreading working though so the needs continously update and the user can put in an input at any time.
-
-# TODO: Implement happiness feature and if happiness drops too low then gotchi runs away.. 
-# every 1min it will randomly decide to come back, also its needs will replenish at a rate of 1% per 1min 
-# and the chance is based on how high needs are. -- Runaway should be a product of current needs vs max needs
-
 # TODO: Balance the needs decay values, implement the death if Hunger or Thirst == 0  
 
 # TODO: Minigames like guess the number, guess the word, simple math problems, hide and seek, etc. Increases socialize stat
@@ -41,7 +35,8 @@ def main_loop(gotchi, game):
             gotchi.check_death()
             gotchi.update_life_stage()
             game.update_ui()
-        time.sleep(1)
+        print(SM.instances) # Debug
+        time.sleep(5)
 
 def start_main_loop(gotchi, game):
     main_thread = threading.Thread(target=main_loop, args=(gotchi, game))
@@ -50,10 +45,9 @@ def start_main_loop(gotchi, game):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-#    gotchi = None
     game = ShellmagotchiGame()
 
-    # Connecting a signal from game_window to main.py to trigger gotchi initialization
+    # Connecting a signal from game_window to main.py to trigger main loop
     game.gotchiCreated.connect(lambda gotchi: start_main_loop(gotchi, game))
 
     game.show()
