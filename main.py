@@ -43,14 +43,21 @@ def main_loop(gotchi, game):
             game.update_ui()
         time.sleep(1)
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    gotchi = None
-    game = ShellmagotchiGame()
-
+def start_main_loop(gotchi, game):
     main_thread = threading.Thread(target=main_loop, args=(gotchi, game))
     main_thread.daemon = True
     main_thread.start()
 
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+#    gotchi = None
+    game = ShellmagotchiGame()
+
+    # Connecting a signal from game_window to main.py to trigger gotchi initialization
+    game.gotchiCreated.connect(lambda gotchi: start_main_loop(gotchi, game))
+
     game.show()
     sys.exit(app.exec())
+
+
+

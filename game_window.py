@@ -8,6 +8,7 @@ from shellmagotchi import Shellmagotchi
 color_red = QColor(255, 0, 0)  # TODO: The rest of the colors
 
 class ShellmagotchiGame(QMainWindow):
+    gotchiCreated = Signal(Shellmagotchi) # Signal Defined
     def __init__(self, gotchi=None):
         super().__init__()
         self.gotchi = gotchi
@@ -60,9 +61,11 @@ class ShellmagotchiGame(QMainWindow):
         self.happiness_bar = QProgressBar()
         self.happiness_bar.setTextVisible(True)
         self.happiness_bar.setStyleSheet("QProgressBar::chunk {background-color: #FFFF00; }") # Yellow?
-        self.layout.addWidget(QLabel("Happiness:"), alignment=Qt.AlignCenter)
-        self.layout.addWidget(self.happiness_bar)
+        self.happiness_label = QLabel("Happiness:")
+        self.layout.addWidget(self.happiness_label, alignment=Qt.AlignCenter)
+        self.happiness_label.setVisible(True)
 
+        self.layout.addWidget(self.happiness_bar)
         self.layout.addWidget(self.stats_frame)
 
 
@@ -79,7 +82,7 @@ class ShellmagotchiGame(QMainWindow):
 
         # Set up timer for updating stats
         self.update_timer = QTimer(self)
-        self.update_timer.timeout.connect(self.update_progress_bars)
+        self.update_timer.timeout.connect(self.update_ui) # Changed from self.update_progress_bars
         self.update_timer.start(500)  # Update every 5 seconds
 
         # Timer for updating the terminal
@@ -102,10 +105,10 @@ class ShellmagotchiGame(QMainWindow):
         self.character_label.setVisible(False)
         self.stats_frame.setVisible(False)
         self.happiness_bar.setVisible(False)
+        self.happiness_label.setVisible(False)
 
     def update_ui(self):
         if self.gotchi:
-            self.gotchi.update_happiness(self.gotchi.happiness_decay())
             for need, bar in self.progress_bars.items():
                 value = getattr(self.gotchi, need)
                 bar.setValue(value)
@@ -115,24 +118,26 @@ class ShellmagotchiGame(QMainWindow):
 
             self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
             self.update_terminal()
+#            self.gotchi.update_needs()
 
     def process_command(self):
         command = self.input_box.text().strip().lower()
         self.input_box.clear()
        
         if not self.gotchi:
-            name = command.title()
-            # name = self.input_box.text().strip()
+            name = command.strip().title()
             if name:
                 self.gotchi = Shellmagotchi(name)
+                self.gotchiCreated.emit(self.gotchi) # Emit signal when gotchi named and created
                 self.add_info(f"Take good care of {name}!")
 
                 self.happiness_bar.setVisible(True)
+                self.happiness_label.setVisible(True)
                 self.life_stage_label.setVisible(True)
                 self.character_label.setVisible(True)
                 self.stats_frame.setVisible(True)
                 self.update_character_image()
-                self.update_progress_bars()
+#                self.update_progress_bars()
                 self.update_terminal()
                 self.update_ui()
                 
@@ -160,16 +165,7 @@ class ShellmagotchiGame(QMainWindow):
 
     def add_info(self, text):
         self.info_frame.append(text)
-
-    def update_progress_bars(self):
-        if self.gotchi:
-            print("game window update needs")
-            self.gotchi.update_needs()
-            print("game window udpated needs")
-            for need, bar in self.progress_bars.items():
-                value = getattr(self.gotchi, need)
-                bar.setValue(value)
-        
+    
     def update_terminal(self):        
         if self.gotchi:    
             info = f"Current Needs -- Hunger: {self.gotchi.hunger:.2f}, Thirst: {self.gotchi.thirst:.2f}, "
