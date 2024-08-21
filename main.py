@@ -23,14 +23,16 @@ from game_window import ShellmagotchiGame
 def main_loop(gotchi, game):
     while True:
         if gotchi is not None:
-            gotchi.update_needs()
-            happiness_decay_rate = gotchi.happiness_decay()
-            gotchi.update_happiness(happiness_decay_rate)
-            gotchi.check_runaway()
-            gotchi.check_death()
+            if gotchi.alive == True:
+                gotchi.update_needs()
+                happiness_decay_rate = gotchi.happiness_decay()
+                gotchi.update_happiness(happiness_decay_rate)
+                gotchi.check_runaway()
+                gotchi.check_death()
+                game.update_ui
             gotchi.update_life_stage()
             game.update_ui()
-        time.sleep(2.5)
+        time.sleep(2)
         print("Main Looped")
 
 def start_main_loop(gotchi, game):

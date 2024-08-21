@@ -10,6 +10,7 @@ from colorama import Fore, Back, Style
 
 class Shellmagotchi(QObject):
     rebirthRequested = Signal()
+    died = Signal()
 
     def __init__(self, name):
         super().__init__() # Superclass initializer MUST be called
@@ -119,12 +120,7 @@ class Shellmagotchi(QObject):
 # Continously update and track the changing needs  
     def update_needs(self):
         if not self.alive:
-            self.hunger == 0
-            self.thirst == 0
-            self.sleep == 0
-            self.hygiene == 0
-            self.bladder == 0
-            self.socialize == 0
+            self.zero_stats() # Zero stats (lol comments)
         elif self.alive:
             current_time = time.time()
             elapsed_time = current_time - self.last_update_time
@@ -170,9 +166,12 @@ class Shellmagotchi(QObject):
             return happiness_decay_rate
 
     def update_happiness(self, happiness_decay_rate):
-        self.happiness = self.happiness * happiness_decay_rate
-        print(Fore.YELLOW + f"Current Happiness: {self.happiness:.2f}" + Style.RESET_ALL)
-        
+        if not self.alive:
+            print("Can't calculate happiness on dead gotchi")
+        else:
+            self.happiness = self.happiness * happiness_decay_rate
+            print(Fore.YELLOW + f"Current Happiness: {self.happiness:.2f}" + Style.RESET_ALL)
+            
 # Check for Runaway
     def check_runaway(self):
         if not self.runaway and not self.dying:
@@ -188,6 +187,17 @@ class Shellmagotchi(QObject):
                     print(f"{self.name} has returned!")
                 else:
                     self.happiness += 1
+
+# Zero out stats (for death)
+    def zero_stats(self):
+        if not self.alive:
+            self.hunger == 0
+            self.thirst == 0
+            self.sleep == 0
+            self.hygiene == 0
+            self.bladder == 0
+            self.socialize == 0
+            self.happiness == 0
 
 # Replenish All Needs
     def replenish_needs(self):
@@ -208,6 +218,9 @@ class Shellmagotchi(QObject):
             if self.hunger <= 0 or self.thirst <= 0:
                 print(f"{self.name} has died!")
                 self.alive = False
+                self.archive_gotchi()
+                self.zero_stats()
+                self.died.emit()
                 print("A moment of silence...")
                 time.sleep(5)
                 self.rebirth()

@@ -1,2 +1,6 @@
-{'name': 'Testies', 'age': 95.213484, 'life_stage': 'Dead', 'death_time': '2024-08-21 11:26:30'}
-{'name': 'Testies', 'age': 95.213484, 'life_stage': 'Dead', 'death_time': '2024-08-21 11:26:35'}
+{'name': 'Asdffd', 'age': 37.601235, 'life_stage': 'Elder', 'death_time': '2024-08-21 13:26:32'}
+{'name': 'Asdf', 'age': 38.123986, 'life_stage': 'Elder', 'death_time': '2024-08-21 13:29:25'}
+{'name': 'Testst', 'age': 38.145585, 'life_stage': 'Elder', 'death_time': '2024-08-21 13:33:49'}
+{'name': 'Fdfdfdf', 'age': 38.123839, 'life_stage': 'Elder', 'death_time': '2024-08-21 13:45:56'}
+{'name': 'Ytes', 'age': 38.13397, 'life_stage': 'Elder', 'death_time': '2024-08-21 13:49:51'}
+{'name': 'Test', 'age': 38.126665, 'life_stage': 'Elder', 'death_time': '2024-08-21 13:57:51'}

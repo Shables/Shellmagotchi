@@ -17,9 +17,12 @@ class ShellmagotchiGame(QMainWindow):
         super().__init__()
         self.gotchi = gotchi
         self.init_ui()
-        
-        if self.gotchi:
-            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
+
+## Hasn't worked, likely because __init__ is only done once        
+#        if self.gotchi:
+#            print("SELF.GOTCHI __INIT__ TRUE")
+#            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
+#            self.gotchi.died.connect(self.update_ui)
 
     def init_ui(self):
         self.setWindowTitle("Tamagotchi Game")
@@ -110,6 +113,7 @@ class ShellmagotchiGame(QMainWindow):
 
 
     def update_ui(self):
+        print("update_ui() called from ShellmagotchiGame class")
         if self.gotchi:
             for need, bar in self.progress_bars.items():
                 value = getattr(self.gotchi, need)
@@ -122,20 +126,41 @@ class ShellmagotchiGame(QMainWindow):
             self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
             self.update_terminal()
             self.update_character_image()
-            
-            if not self.gotchi.alive:
-                self.gotchi.rebirth()
+
+            # May be the wrong spot for this, listen for signals
+            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
+            self.gotchi.died.connect(self.update_ui)
 
     def handle_rebirth_request(self):
+        print("HANDLE REBIRTH REQUEST() TRIGGERED")
         self.add_info("Wait... something's happening")
         time.sleep(1)
         self.add_info(f"You see an egg sitting in the ashes of {self.gotchi.name}")
-        self.gotchi.archive_gotchi()
         self.add_info(f"I ... guess you should name it?.. what would you like to name it?")
         new_name = self.input_box.text().strip().title()
-        self.add_info(f"Take good care of {self.gotchi.name}!")
-        self.__init__(new_name)
+    
+        if new_name:
+            # Initializing new gotchi to replace the old one
+            new_gotchi = Shellmagotchi(new_name)
+            self.gotchi = new_gotchi
 
+            # Reconnecting signals for the new gotchi
+            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
+            self.gotchi.died.connect(self.update_ui)
+
+            self.add_info(f"Take good care of {self.gotchi.name}!")
+
+            # Reset UI
+            self.info_frame.clear()
+            for bar in self.progress_bars.values():
+                bar.setValue(100)
+            self.happiness_bar.setValue(100)
+            self.update_character_image()
+            self.input_box.clear()
+
+            # Send signal for new main_loop (may not be necessary)
+            self.gotchiCreated.emit(self.gotchi)
+        
     def process_command(self):
         command = self.input_box.text().strip().lower()
         self.input_box.clear()
