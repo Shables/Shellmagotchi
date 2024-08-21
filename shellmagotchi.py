@@ -24,6 +24,10 @@ class Shellmagotchi:
         self.alive = True
         self.runaway = False
 
+    @staticmethod
+    def clamp(value, minimum=0, maximum=100):
+        return max(minimum, min(maximum, value))
+
 # Private values for ensuring needs stay equal to and between 0 and 100
     @property
     def hunger(self):
@@ -106,10 +110,6 @@ class Shellmagotchi:
         self.socialize += 100
         print("Gotchi socialized")
 
-    @staticmethod
-    def clamp(value, minimum=0, maximum=100):
-        return max(minimum, min(maximum, value))
-
 # Continously update and track the changing needs  
     def update_needs(self):
         current_time = time.time()
@@ -121,8 +121,10 @@ class Shellmagotchi:
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second
         decay_amount = decay_rate * elapsed_time
-        self.hunger = max(0, self.hunger - (decay_amount * 0.1))
-        self.thirst = max(0, self.thirst - (decay_amount * 0.5))
+#        self.hunger = max(0, self.hunger - (decay_amount * 0.1))
+#        self.thirst = max(0, self.thirst - (decay_amount * 0.5))
+        self.hunger = max(0, self.hunger - decay_amount)
+        self.thirst = max(0, self.thirst - (decay_amount * 3))
         self.sleep = max(0, self.sleep - decay_amount)
         self.hygiene = max(0, self.hygiene - decay_amount)
         self.bladder = max(0, self.bladder - decay_amount)
@@ -140,12 +142,13 @@ class Shellmagotchi:
 
         if percent_needs_met >= 75.0:
             happiness_decay_rate = 1.0
+            self.happiness += 1
         elif percent_needs_met >= 50.0:
-            happiness_decay_rate = 0.99
+            happiness_decay_rate = 0.95
         elif percent_needs_met >= 25:
-            happiness_decay_rate = 0.96
+            happiness_decay_rate = 0.90
         elif percent_needs_met >= 0:
-            happiness_decay_rate = 0.91
+            happiness_decay_rate = 0.80
         else:
             print("Error with Happiness Decay method")
         return happiness_decay_rate
@@ -177,20 +180,23 @@ class Shellmagotchi:
 
 # Check for death
     def check_death(self):
-        # self.thirst = 0 # Debug
-        if self.hunger <= 0 or self.thirst <= 0:
-            print("WARNING: GOTCHI DYING OF THIRST AND HUNGER")
-            threading.Timer(60, self.confirm_dead()).start()
-            # self.thirst = 0 # Debug
+        if self.alive:
+            if self.hunger <= 0 or self.thirst <= 0:
+                print("WARNING: GOTCHI DYING OF THIRST AND HUNGER")
+                self.death_timer = threading.Timer(60, self.confirm_dead)
+                self.death_timer.start()
 
     def confirm_dead(self):
-        if self.hunger <= 0 or self.thirst <= 0:
-            print(f"{self.name} has died!")
-            self.alive = False
-            print("A new egg appears")
-            self.__init__(self.name)
-        else:
-            print(f"{self.name} has started to recover from malnutrition")
+        if self.alive:
+            if self.hunger <= 0 or self.thirst <= 0:
+                print(f"{self.name} has died!")
+                self.alive = False
+                print("A moment of silence...")
+                time.sleep(5)
+                print("A new egg appears")
+                self.__init__(self.name)
+            else:
+                print(f"{self.name} has started to recover from malnutrition")
 
 # Life Stages
     def update_life_stage(self):

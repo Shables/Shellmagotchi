@@ -25,9 +25,8 @@ from game_window import ShellmagotchiGame
 def main_loop(gotchi, game):
     while True:
         if gotchi is not None:
-            print("Main loop gotchi True") # Debug
             gotchi.update_needs()
-            print("Main Loop update needs called") # Debug
+            print("Main Loop: update_needs called") # Debug
             happiness_decay_rate = gotchi.happiness_decay()
             gotchi.update_happiness(happiness_decay_rate)
             print(f"Main loop happiness: {gotchi.happiness}") # Debug
@@ -35,7 +34,7 @@ def main_loop(gotchi, game):
             gotchi.check_death()
             gotchi.update_life_stage()
             game.update_ui()
-        time.sleep(5)
+        time.sleep(2.5)
 
 def start_main_loop(gotchi, game):
     main_thread = threading.Thread(target=main_loop, args=(gotchi, game))
