@@ -21,7 +21,7 @@ from game_window import ShellmagotchiGame
 # TODO: Create save states for the Tomagatchi itself so player can have perpetual progress
 
 # High priority
-# TODO: Implement rebirth feature (should do some flavor text in info terminal, then start over with the "Wow! You found an egg" thing)
+# TODO: Implement rebirth feature (should do some flavor text in info terminal GUI, delete or "archive" the existing gotchi, then start over with the "Wow! You found an egg" thing)
 
 
 def main_loop(gotchi, game):

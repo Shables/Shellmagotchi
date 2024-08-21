@@ -1,0 +1,2 @@
+{'name': 'Testies', 'age': 95.213484, 'life_stage': 'Dead', 'death_time': '2024-08-21 11:26:30'}
+{'name': 'Testies', 'age': 95.213484, 'life_stage': 'Dead', 'death_time': '2024-08-21 11:26:35'}

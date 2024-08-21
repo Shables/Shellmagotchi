@@ -3,11 +3,12 @@ import sys
 import time
 import random
 import threading
+from PySide6.QtCore import Signal, QObject
 from datetime import datetime
 from colorama import Fore, Back, Style
 
 
-class Shellmagotchi:
+class Shellmagotchi(QObject):
     def __init__(self, name):
         self.name = name
         self._hunger = 100
@@ -24,6 +25,9 @@ class Shellmagotchi:
         self.alive = True
         self.dying = False
         self.runaway = False
+        self.rebirthing = False
+        rebirthRequested = Signal()
+
 
     @staticmethod
     def clamp(value, minimum=0, maximum=100):
@@ -160,7 +164,7 @@ class Shellmagotchi:
         
 # Check for Runaway
     def check_runaway(self):
-        if not self.runaway:
+        if not self.runaway and not self.dying:
             if self.happiness < 20:
                 runaway_probability = max(0, min(1, (20 - self.happiness) / 20)) # Probably broken
                 if random.random() < runaway_probability:
@@ -185,7 +189,7 @@ class Shellmagotchi:
             if self.hunger <= 0 or self.thirst <= 0:
                 self.dying = True
                 print("WARNING: GOTCHI DYING OF THIRST AND HUNGER")
-                self.death_timer = threading.Timer(60, self.confirm_dead)
+                self.death_timer = threading.Timer(5, self.confirm_dead)
                 self.death_timer.start()
 
     def confirm_dead(self):
@@ -195,11 +199,34 @@ class Shellmagotchi:
                 self.alive = False
                 print("A moment of silence...")
                 time.sleep(5)
-                print("A new egg appears")
-                self.__init__(self.name)
+                self.rebirth()
             else:
                 self.dying = False
                 print(f"{self.name} has started to recover from malnutrition")
+
+# Rebirth the gotchi after some time
+    def rebirth(self):
+        if self.alive == False and self.rebirthing == False:
+            self.rebirthing = True
+            print("rebirth() has changed self.rebirthing to True")
+            self.rebirthRequested.emit()
+            print("Sending signal for rebirth")
+
+# Save the dead gotchi to a txt file for archive
+    def archive_gotchi(self):
+        data_to_archive = {
+            "name": self.name,
+            "age": self.age,
+            "life_stage": self.life_stage,
+            "death_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        try:
+            with open("gotchi_graveyard.txt", "a") as f: # a does append, just learned that
+                f.write(str(data_to_archive) + "\n") # Newline after each one
+            print(f"{self.name}'s memory has been preserved in the gotchi_graveyard")
+        except IOError:
+            print("Error: Could not archive gotchi data")
+
 
 # Life Stages
     def update_life_stage(self):

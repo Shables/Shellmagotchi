@@ -1,10 +1,12 @@
 import sys
 import traceback
+import time
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                QHBoxLayout, QFrame, QTextEdit, QLineEdit, QProgressBar, QGridLayout, QLabel)
 from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtCore import Qt, QTimer, Signal
 from shellmagotchi import Shellmagotchi
+
 
 color_red = QColor(255, 0, 0)  # TODO: The rest of the colors
 
@@ -14,7 +16,12 @@ class ShellmagotchiGame(QMainWindow):
         super().__init__()
         self.gotchi = gotchi
         self.init_ui()
-        #self.update_ui() # Updated right after initialization
+        
+        # I dont know of any better way to get the rebirth function from shellmagotchi.py
+        # to connect to the game_window.py module.. so.. more signals and slots
+        if self.gotchi:
+            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
+
 
     def init_ui(self):
         self.setWindowTitle("Tamagotchi Game")
@@ -33,10 +40,7 @@ class ShellmagotchiGame(QMainWindow):
         self.character_label = QLabel()
 
         self.character_layout.addWidget(self.character_label, 0, 0, 2, 1, alignment=Qt.AlignCenter)
-
-#        self.character_layout.addStretch()
-#        self.character_layout.addWidget(self.character_label, alignment=Qt.AlignCenter)
-        
+       
         # Display life stage, after initialized
         self.life_stage_label = QLabel()
         self.life_stage_label.setStyleSheet("color: grey;")
@@ -81,7 +85,6 @@ class ShellmagotchiGame(QMainWindow):
         self.happiness_bar.setTextVisible(True)
         self.happiness_bar.setStyleSheet("QProgressBar::chunk {background-color: #FFFF00; }") # Yellow?
 
-
         self.layout.addWidget(self.happiness_label, alignment=Qt.AlignCenter)
         self.layout.addWidget(self.happiness_bar)
         self.layout.addWidget(self.stats_frame)
@@ -96,9 +99,6 @@ class ShellmagotchiGame(QMainWindow):
         self.input_box.setPlaceholderText("Enter command...")
         self.input_box.returnPressed.connect(self.process_command)
         self.layout.addWidget(self.input_box)
-
-        self.add_info("Woah! You found an egg!")
-        self.add_info("What would you like to name it?")
         
         # Hide the character image and stats at start
         self.character_label.setVisible(False)
@@ -120,11 +120,26 @@ class ShellmagotchiGame(QMainWindow):
             self.update_terminal()
             self.update_character_image()
 
+            if not self.gotchi.alive:
+                self.gotchi.rebirth() # Signal for rebirth
+
+    def handle_rebirth_request(self):
+        self.add_info("Wait... something's happening")
+        time.sleep(1)
+        self.add_info(f"You see an egg sitting in the ashes of {self.gotchi.name}")
+        self.gotchi.archive_gotchi()
+        self.add_info(f"I ... guess you should name it?.. what would you like to name it?")
+        new_name = self.input_box.text().strip().title()
+        self.add_info(f"Take good care of {self.gotchi.name}!")
+        self.__init__(new_name)
+
     def process_command(self):
         command = self.input_box.text().strip().lower()
         self.input_box.clear()
        
         if not self.gotchi:
+            self.add_info("Woah! You found an egg!")
+            self.add_info("What would you like to name it?")
             name = command.strip().title()
             if name:
                 self.gotchi = Shellmagotchi(name)
@@ -154,6 +169,17 @@ class ShellmagotchiGame(QMainWindow):
                 self.gotchi.potty()
             elif command in ['socialize', 'play']:
                 self.gotchi.social()
+            elif command == 'rebirth':
+                self.add_info("Are you sure you would like to rebirth?")
+                self.add_info("Rebirthing will archive the current gotchi and spawn a new egg")
+                confirmation = input("Confirm? (Y/N): ").strip().lower()
+                if confirmation == 'y':
+                    self.update_ui()
+                    self.gotchi.rebirth()
+                elif confirmation == 'n':
+                    self.add_info("Cancelling rebirth...")
+                else:
+                    self.add_info("Unknown command")
             else:
                 self.add_info("Unknown command")
 
@@ -161,7 +187,7 @@ class ShellmagotchiGame(QMainWindow):
         if self.gotchi:
             image_path = f"assets/{self.gotchi.life_stage.lower()}.png"
             pixmap = QPixmap(image_path)
-        if not pixmap.isNull():
+        if not pixmap.isNull() and pixmap != None:
             self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         else:
             print(f"Image not found: {image_path}")
