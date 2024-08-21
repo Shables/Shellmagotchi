@@ -22,6 +22,7 @@ class Shellmagotchi:
         self._happiness = 100
         self.age = 0
         self.alive = True
+        self.dying = False
         self.runaway = False
 
     @staticmethod
@@ -180,14 +181,15 @@ class Shellmagotchi:
 
 # Check for death
     def check_death(self):
-        if self.alive:
+        if self.alive and not self.dying:
             if self.hunger <= 0 or self.thirst <= 0:
+                self.dying = True
                 print("WARNING: GOTCHI DYING OF THIRST AND HUNGER")
                 self.death_timer = threading.Timer(60, self.confirm_dead)
                 self.death_timer.start()
 
     def confirm_dead(self):
-        if self.alive:
+        if self.alive and self.dying:
             if self.hunger <= 0 or self.thirst <= 0:
                 print(f"{self.name} has died!")
                 self.alive = False
@@ -196,6 +198,7 @@ class Shellmagotchi:
                 print("A new egg appears")
                 self.__init__(self.name)
             else:
+                self.dying = False
                 print(f"{self.name} has started to recover from malnutrition")
 
 # Life Stages

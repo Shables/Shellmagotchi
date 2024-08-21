@@ -28,6 +28,7 @@ class ShellmagotchiGame(QMainWindow):
         self.character_frame = QFrame()
         self.character_frame.setFrameShape(QFrame.Box)
         self.character_frame.setFixedHeight(150)
+        
         self.character_layout = QVBoxLayout(self.character_frame)
         self.character_label = QLabel()
         self.character_layout.addStretch()
@@ -85,6 +86,13 @@ class ShellmagotchiGame(QMainWindow):
         self.character_layout.addWidget(self.life_stage_label, alignment=Qt.AlignBottom | Qt.AlignRight)
         self.life_stage_label.setVisible(False)
 
+        # Display name, after initialized
+        self.name_label = QLabel()
+        self.name_label.setStyleSheet("color: grey;")
+        self.name_label.setAlignment(Qt.AlignBottom | Qt.AlignLeft)
+        self.character_layout.addWidget(self.name_label, alignment=Qt.AlignBottom | Qt.AlignLeft)
+        self.name_label.setVisible(False)
+
         self.add_info("Woah! You found an egg!")
         self.add_info("What would you like to name it?")
         
@@ -102,6 +110,7 @@ class ShellmagotchiGame(QMainWindow):
 
             self.happiness_bar.setValue(int(self.gotchi.happiness))
             self.life_stage_label.setText(self.gotchi.life_stage)
+            self.name_label.setText(self.gotchi.name)
 
             self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
             self.update_terminal()
@@ -121,6 +130,7 @@ class ShellmagotchiGame(QMainWindow):
                 self.happiness_bar.setVisible(True)
                 self.happiness_label.setVisible(True)
                 self.life_stage_label.setVisible(True)
+                self.name_label.setVisible(True)
                 self.character_label.setVisible(True)
                 self.stats_frame.setVisible(True)
                 self.update_character_image()
