@@ -133,8 +133,8 @@ class ShellmagotchiGame(QMainWindow):
 
     def handle_rebirth_request(self):
         print("HANDLE REBIRTH REQUEST() TRIGGERED")
+        self.gotchi.rebirthRequested.disconnect() # Disconnect signal to handle repeated calls freezing GUI
         self.add_info("Wait... something's happening")
-        time.sleep(1)
         self.add_info(f"You see an egg sitting in the ashes of {self.gotchi.name}")
         self.add_info(f"I ... guess you should name it?.. what would you like to name it?")
         new_name = self.input_box.text().strip().title()

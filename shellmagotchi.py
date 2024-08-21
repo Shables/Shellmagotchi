@@ -30,6 +30,7 @@ class Shellmagotchi(QObject):
         self.dying = False
         self.runaway = False
         self.rebirthing = False
+        self.rebirth_signal_sent = False
 
     @staticmethod
     def clamp(value, minimum=0, maximum=100):
@@ -233,8 +234,10 @@ class Shellmagotchi(QObject):
         if self.alive == False and self.rebirthing == False:
             self.rebirthing = True
             print("rebirth() has changed self.rebirthing to True")
-            self.rebirthRequested.emit()
-            print("Sending signal for rebirth")
+            if self.rebirth_signal_sent == False:
+                self.rebirthRequested.emit()
+                print("Sending signal for rebirth")
+                self.rebirth_signal_sent == True
 
 # Save the dead gotchi to a txt file for archive
     def archive_gotchi(self):

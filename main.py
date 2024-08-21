@@ -21,7 +21,7 @@ from game_window import ShellmagotchiGame
 # TODO: Create save states for the Tomagatchi itself so player can have perpetual progress
 
 def main_loop(gotchi, game):
-    while True:
+    while gotchi.alive:
         if gotchi is not None:
             if gotchi.alive == True:
                 gotchi.update_needs()
@@ -30,8 +30,8 @@ def main_loop(gotchi, game):
                 gotchi.check_runaway()
                 gotchi.check_death()
                 game.update_ui
-            gotchi.update_life_stage()
-            game.update_ui()
+        gotchi.update_life_stage()
+        game.update_ui()
         time.sleep(2)
         print("Main Looped")
 
