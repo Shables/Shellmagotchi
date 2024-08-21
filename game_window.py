@@ -105,7 +105,7 @@ class ShellmagotchiGame(QMainWindow):
 
             self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
             self.update_terminal()
-            #self.update_character_image()
+            self.update_character_image()
 
     def process_command(self):
         command = self.input_box.text().strip().lower()
@@ -147,7 +147,6 @@ class ShellmagotchiGame(QMainWindow):
         if self.gotchi:
             image_path = f"assets/{self.gotchi.life_stage.lower()}.png"
             pixmap = QPixmap(image_path)
-#            pixmap = QPixmap(f"assets/{self.gotchi.life_stage.lower()}.png")
         if not pixmap.isNull():
             self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         else:

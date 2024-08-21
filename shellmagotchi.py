@@ -156,18 +156,19 @@ class Shellmagotchi:
         
 # Check for Runaway
     def check_runaway(self):
-        if self.happiness < 20:
-            runaway_probability = max(0, min(1, (20 - self.happiness) / 20)) # Probably broken
-            if random.random() < runaway_probability:
-                self.runaway = True
-                print(f"{self.name} has run away!")
-        elif self.runaway:
-            if random.random() < 0.01 * (self.happiness / 100): # Return chance based on happiness
-                self.runaway = False
-                self.replenish_needs()
-                print(f"{self.name} has returned!")
-            else:
-                self.happiness += 1
+        if not self.runaway:
+            if self.happiness < 20:
+                runaway_probability = max(0, min(1, (20 - self.happiness) / 20)) # Probably broken
+                if random.random() < runaway_probability:
+                    self.runaway = True
+                    print(f"{self.name} has run away!")
+            elif self.runaway:
+                if random.random() < 0.01 * (self.happiness / 100): # Return chance based on happiness
+                    self.runaway = False
+                    self.replenish_needs()
+                    print(f"{self.name} has returned!")
+                else:
+                    self.happiness += 1
 
 # Replenish All Needs
     def replenish_needs(self):
@@ -176,16 +177,20 @@ class Shellmagotchi:
 
 # Check for death
     def check_death(self):
+        # self.thirst = 0 # Debug
         if self.hunger <= 0 or self.thirst <= 0:
             print("WARNING: GOTCHI DYING OF THIRST AND HUNGER")
-            threading.timer(60).start()
-            if self.hunger <= 0 or self.thirst <= 0:
-                print(f"{self.name} has died!")
-                self.alive = False
-                print("A new egg appears")
-                self.__init__(self.name)
-            else:
-                print(f"{self.name} has started to recover from malnutrition")
+            threading.Timer(60, self.confirm_dead()).start()
+            # self.thirst = 0 # Debug
+
+    def confirm_dead(self):
+        if self.hunger <= 0 or self.thirst <= 0:
+            print(f"{self.name} has died!")
+            self.alive = False
+            print("A new egg appears")
+            self.__init__(self.name)
+        else:
+            print(f"{self.name} has started to recover from malnutrition")
 
 # Life Stages
     def update_life_stage(self):
@@ -194,19 +199,24 @@ class Shellmagotchi:
         age_days = 86400
         current_time = datetime.now()
         self.age = (current_time - self.birth_time).total_seconds() / age_seconds # Age in minutes
-        if self.age < 1:
-            self.life_stage = 'Egg'
-        elif self.age < 7:
-            self.life_stage = 'Child'
-        elif self.age < 14:
-            self.life_stage = 'Teen'
-        elif self.age < 21:
-            self.life_stage = 'Adult'
-        elif self.age < 30:
-            self.life_stage = 'Mature'
-        else:
-            self.life_stage = 'Elder'
-
+        # Check if dead or runaway first
+        if self.alive == False:
+            self.life_stage = 'Dead'
+        elif self.runaway == True:
+            self.life_stage = 'Runaway'
+        else:    
+            if self.age < 1:
+                self.life_stage = 'Egg'
+            elif self.age < 7:
+                self.life_stage = 'Child'
+            elif self.age < 14:
+                self.life_stage = 'Teen'
+            elif self.age < 21:
+                self.life_stage = 'Adult'
+            elif self.age < 30:
+                self.life_stage = 'Mature'
+            else:
+                self.life_stage = 'Elder'
 
 # Save/Load current time to seperate file to track needs decay while user away
     def save_last_update_time(self):
