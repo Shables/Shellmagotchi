@@ -29,11 +29,12 @@ def main_loop(gotchi, game):
                 gotchi.update_happiness(happiness_decay_rate)
                 gotchi.check_runaway()
                 gotchi.check_death()
-                game.update_ui
-        gotchi.update_life_stage()
-        game.update_ui()
-        time.sleep(2)
-        print("Main Looped")
+                gotchi.update_life_stage()
+            game.update_ui()
+            time.sleep(2)
+            print("Main Looped")
+        else:
+            break # Get me out of here
 
 def start_main_loop(gotchi, game):
     main_thread = threading.Thread(target=main_loop, args=(gotchi, game))

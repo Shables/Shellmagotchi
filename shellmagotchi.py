@@ -223,7 +223,7 @@ class Shellmagotchi(QObject):
                 self.zero_stats()
                 self.died.emit()
                 print("A moment of silence...")
-                time.sleep(5)
+                # time.sleep(5)
                 self.rebirth()
             else:
                 self.dying = False
@@ -231,13 +231,14 @@ class Shellmagotchi(QObject):
 
 # Rebirth the gotchi after some time
     def rebirth(self):
-        if self.alive == False and self.rebirthing == False:
+        if self.alive == False and self.rebirthing == False and not self.rebirth_signal_sent:
             self.rebirthing = True
             print("rebirth() has changed self.rebirthing to True")
             if self.rebirth_signal_sent == False:
                 self.rebirthRequested.emit()
                 print("Sending signal for rebirth")
                 self.rebirth_signal_sent == True
+                self.rebirthRequested.disconnect()
 
 # Save the dead gotchi to a txt file for archive
     def archive_gotchi(self):

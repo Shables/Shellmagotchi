@@ -18,12 +18,6 @@ class ShellmagotchiGame(QMainWindow):
         self.gotchi = gotchi
         self.init_ui()
 
-## Hasn't worked, likely because __init__ is only done once        
-#        if self.gotchi:
-#            print("SELF.GOTCHI __INIT__ TRUE")
-#            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
-#            self.gotchi.died.connect(self.update_ui)
-
     def init_ui(self):
         self.setWindowTitle("Tamagotchi Game")
         self.setGeometry(100, 100, 800, 800)
@@ -111,7 +105,6 @@ class ShellmagotchiGame(QMainWindow):
         self.add_info("Woah! You found an egg!")
         self.add_info("What would you like to name it?")
 
-
     def update_ui(self):
         print("update_ui() called from ShellmagotchiGame class")
         if self.gotchi:
@@ -133,20 +126,23 @@ class ShellmagotchiGame(QMainWindow):
 
     def handle_rebirth_request(self):
         print("HANDLE REBIRTH REQUEST() TRIGGERED")
-        self.gotchi.rebirthRequested.disconnect() # Disconnect signal to handle repeated calls freezing GUI
         self.add_info("Wait... something's happening")
         self.add_info(f"You see an egg sitting in the ashes of {self.gotchi.name}")
         self.add_info(f"I ... guess you should name it?.. what would you like to name it?")
-        new_name = self.input_box.text().strip().title()
-    
+        command = self.input_box.text().strip().title()
+        new_name = command
+
         if new_name:
+            # Disconnect signal, trying here
+            self.gotchi.rebirthRequested.disconnect() 
+
             # Initializing new gotchi to replace the old one
             new_gotchi = Shellmagotchi(new_name)
             self.gotchi = new_gotchi
 
-            # Reconnecting signals for the new gotchi
-            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
-            self.gotchi.died.connect(self.update_ui)
+# Should be done elsewhere; Reconnecting signals for the new gotchi
+#            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
+#            self.gotchi.died.connect(self.update_ui)
 
             self.add_info(f"Take good care of {self.gotchi.name}!")
 
@@ -164,7 +160,6 @@ class ShellmagotchiGame(QMainWindow):
     def process_command(self):
         command = self.input_box.text().strip().lower()
         self.input_box.clear()
-       
         if not self.gotchi:
             name = command.strip().title()
             if name:
@@ -182,32 +177,34 @@ class ShellmagotchiGame(QMainWindow):
                 self.update_ui()
                 
 
-        elif self.gotchi: # Only Handle These Commands when Gotchi is True
-            if command in ['feed', 'food', 'breakfast', 'lunch', 'dinner', 'snack']:
-                self.gotchi.feed()
-            elif command in ['water', 'drink', 'thirst', 'give water']:
-                self.gotchi.give_water()
-            elif command in ['bathe', 'wash', 'bath', 'shower']:
-                self.gotchi.bathe()
-            elif command in ['bedtime', 'tuckin', 'tuck-in', 'sleepy']:
-                self.gotchi.tuck_in()
-            elif command in ['potty', 'bathroom', 'pee']:
-                self.gotchi.potty()
-            elif command in ['socialize', 'play']:
-                self.gotchi.social()
-            elif command == 'rebirth':
-                self.add_info("Are you sure you would like to rebirth?")
-                self.add_info("Rebirthing will archive the current gotchi and spawn a new egg")
-                self.add_info("Confirm? (Y/N): ")
-                if command == 'y':
-                    self.update_ui()
-                    self.gotchi.rebirth()
-                elif command == 'n':
-                    self.add_info("Cancelling rebirth...")
+            elif self.gotchi and not self.gotchi.rebirthing: # Only Handle These Commands when Gotchi is True
+                if command in ['feed', 'food', 'breakfast', 'lunch', 'dinner', 'snack']:
+                    self.gotchi.feed()
+                elif command in ['water', 'drink', 'thirst', 'give water']:
+                    self.gotchi.give_water()
+                elif command in ['bathe', 'wash', 'bath', 'shower']:
+                    self.gotchi.bathe()
+                elif command in ['bedtime', 'tuckin', 'tuck-in', 'sleepy']:
+                    self.gotchi.tuck_in()
+                elif command in ['potty', 'bathroom', 'pee']:
+                    self.gotchi.potty()
+                elif command in ['socialize', 'play']:
+                    self.gotchi.social()
+                elif command == 'rebirth':
+                    self.add_info("Are you sure you would like to rebirth?")
+                    self.add_info("Rebirthing will archive the current gotchi and spawn a new egg")
+                    self.add_info("Confirm? (Y/N): ")
+                    if command == 'y':
+                        self.update_ui()
+                        self.gotchi.rebirth()
+                    elif command == 'n':
+                        self.add_info("Cancelling rebirth...")
+                    else:
+                        self.add_info("Unknown command")
                 else:
                     self.add_info("Unknown command")
-            else:
-                self.add_info("Unknown command")
+            elif self.gotchi and not self.gotchi.rebirthing:
+                return command
 
     def update_character_image(self):
         if self.gotchi:
