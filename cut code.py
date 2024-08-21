@@ -19,4 +19,9 @@
 #            for need, bar in self.progress_bars.items():
 #                value = getattr(self.gotchi, need)
 #                bar.setValue(value)
- 
+
+## Can't figure out where to put these damn signals and slots
+# I dont know of any better way to get the rebirth function from shellmagotchi.py
+# to connect to the game_window.py module.. so.. more signals and slots
+#        if self.gotchi:
+#            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)

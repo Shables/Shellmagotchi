@@ -9,7 +9,10 @@ from colorama import Fore, Back, Style
 
 
 class Shellmagotchi(QObject):
+    rebirthRequested = Signal()
+
     def __init__(self, name):
+        super().__init__() # Superclass initializer MUST be called
         self.name = name
         self._hunger = 100
         self._thirst = 100
@@ -26,8 +29,6 @@ class Shellmagotchi(QObject):
         self.dying = False
         self.runaway = False
         self.rebirthing = False
-        rebirthRequested = Signal()
-
 
     @staticmethod
     def clamp(value, minimum=0, maximum=100):
@@ -117,19 +118,26 @@ class Shellmagotchi(QObject):
 
 # Continously update and track the changing needs  
     def update_needs(self):
-        current_time = time.time()
-        elapsed_time = current_time - self.last_update_time
-        self.needs_decay(elapsed_time)
-        self.save_last_update_time()
-        print(f"Current Needs -- Hunger: {self.hunger:.2f}, Thirst: {self.thirst:.2f}, Sleep: {self.sleep:.2f}, Hygiene: {self.hygiene:.2f}, Bladder: {self.bladder:.2f}, Socialize: {self.socialize:.2f}")
+        if not self.alive:
+            self.hunger == 0
+            self.thirst == 0
+            self.sleep == 0
+            self.hygiene == 0
+            self.bladder == 0
+            self.socialize == 0
+        elif self.alive:
+            current_time = time.time()
+            elapsed_time = current_time - self.last_update_time
+            self.needs_decay(elapsed_time)
+            self.save_last_update_time()
+            print(f"Current Needs -- Hunger: {self.hunger:.2f}, Thirst: {self.thirst:.2f}, Sleep: {self.sleep:.2f}, Hygiene: {self.hygiene:.2f}, Bladder: {self.bladder:.2f}, Socialize: {self.socialize:.2f}")
+            print(f"# Debug: Alive - {self.alive}, Runaway - {self.runaway}, Dying - {self.dying}, Rebirthing - {self.rebirthing}")
 
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second
         decay_amount = decay_rate * elapsed_time
-#        self.hunger = max(0, self.hunger - (decay_amount * 0.1))
-#        self.thirst = max(0, self.thirst - (decay_amount * 0.5))
         self.hunger = max(0, self.hunger - decay_amount)
-        self.thirst = max(0, self.thirst - (decay_amount * 3))
+        self.thirst = max(0, self.thirst - (decay_amount * 3)) # Faster for death debugging
         self.sleep = max(0, self.sleep - decay_amount)
         self.hygiene = max(0, self.hygiene - decay_amount)
         self.bladder = max(0, self.bladder - decay_amount)
@@ -141,22 +149,25 @@ class Shellmagotchi(QObject):
 # 25% - 49% <= Fast Loss
 # 0% - 24% <= Near-instant loss
     def happiness_decay(self):
-        current_needs = sum([self.hunger, self.thirst, self.sleep, self.hygiene, self.bladder, self.socialize]) # Total Maxed Needs
-        percent_needs_met = (current_needs / 600) * 100
-        print(Fore.RED + f"Current Percentage of Needs Met: {percent_needs_met:.2f}" + Style.RESET_ALL)
+        if not self.alive:
+            self.happiness == 0 # It's dead
+        elif self.alive:
+            current_needs = sum([self.hunger, self.thirst, self.sleep, self.hygiene, self.bladder, self.socialize]) # Total Maxed Needs
+            percent_needs_met = (current_needs / 600) * 100
+            print(Fore.RED + f"Current Percentage of Needs Met: {percent_needs_met:.2f}" + Style.RESET_ALL)
 
-        if percent_needs_met >= 75.0:
-            happiness_decay_rate = 1.0
-            self.happiness += 1
-        elif percent_needs_met >= 50.0:
-            happiness_decay_rate = 0.95
-        elif percent_needs_met >= 25:
-            happiness_decay_rate = 0.90
-        elif percent_needs_met >= 0:
-            happiness_decay_rate = 0.80
-        else:
-            print("Error with Happiness Decay method")
-        return happiness_decay_rate
+            if percent_needs_met >= 75.0:
+                happiness_decay_rate = 1.0
+                self.happiness += 1
+            elif percent_needs_met >= 50.0:
+                happiness_decay_rate = 0.95
+            elif percent_needs_met >= 25:
+                happiness_decay_rate = 0.90
+            elif percent_needs_met >= 0:
+                happiness_decay_rate = 0.80
+            else:
+                print("Error with Happiness Decay method")
+            return happiness_decay_rate
 
     def update_happiness(self, happiness_decay_rate):
         self.happiness = self.happiness * happiness_decay_rate
@@ -230,12 +241,12 @@ class Shellmagotchi(QObject):
 
 # Life Stages
     def update_life_stage(self):
-        age_seconds = 1
-        age_minutes = 60
+        age_seconds = 1 # Debug
+        age_minutes = 60 # Debug
         age_days = 86400
         current_time = datetime.now()
         self.age = (current_time - self.birth_time).total_seconds() / age_seconds # Age in minutes
-        # Check if dead or runaway first
+        # Check if dead first, then runaway, then lifestage
         if self.alive == False:
             self.life_stage = 'Dead'
         elif self.runaway == True:

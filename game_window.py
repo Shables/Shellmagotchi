@@ -12,16 +12,14 @@ color_red = QColor(255, 0, 0)  # TODO: The rest of the colors
 
 class ShellmagotchiGame(QMainWindow):
     gotchiCreated = Signal(Shellmagotchi) # Signal Defined
+
     def __init__(self, gotchi=None):
         super().__init__()
         self.gotchi = gotchi
         self.init_ui()
         
-        # I dont know of any better way to get the rebirth function from shellmagotchi.py
-        # to connect to the game_window.py module.. so.. more signals and slots
         if self.gotchi:
             self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
-
 
     def init_ui(self):
         self.setWindowTitle("Tamagotchi Game")
@@ -106,6 +104,11 @@ class ShellmagotchiGame(QMainWindow):
         self.happiness_bar.setVisible(False)
         self.happiness_label.setVisible(False)
 
+        # Prompting player to name their first gotchi
+        self.add_info("Woah! You found an egg!")
+        self.add_info("What would you like to name it?")
+
+
     def update_ui(self):
         if self.gotchi:
             for need, bar in self.progress_bars.items():
@@ -119,9 +122,9 @@ class ShellmagotchiGame(QMainWindow):
             self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
             self.update_terminal()
             self.update_character_image()
-
+            
             if not self.gotchi.alive:
-                self.gotchi.rebirth() # Signal for rebirth
+                self.gotchi.rebirth()
 
     def handle_rebirth_request(self):
         self.add_info("Wait... something's happening")
@@ -138,8 +141,6 @@ class ShellmagotchiGame(QMainWindow):
         self.input_box.clear()
        
         if not self.gotchi:
-            self.add_info("Woah! You found an egg!")
-            self.add_info("What would you like to name it?")
             name = command.strip().title()
             if name:
                 self.gotchi = Shellmagotchi(name)
@@ -172,11 +173,11 @@ class ShellmagotchiGame(QMainWindow):
             elif command == 'rebirth':
                 self.add_info("Are you sure you would like to rebirth?")
                 self.add_info("Rebirthing will archive the current gotchi and spawn a new egg")
-                confirmation = input("Confirm? (Y/N): ").strip().lower()
-                if confirmation == 'y':
+                self.add_info("Confirm? (Y/N): ")
+                if command == 'y':
                     self.update_ui()
                     self.gotchi.rebirth()
-                elif confirmation == 'n':
+                elif command == 'n':
                     self.add_info("Cancelling rebirth...")
                 else:
                     self.add_info("Unknown command")
@@ -195,7 +196,7 @@ class ShellmagotchiGame(QMainWindow):
 
     def add_info(self, text):
         self.info_frame.append(text)
-    
+        
     def update_terminal(self): 
         if self.gotchi:    
             info = f"Current Needs -- Hunger: {self.gotchi.hunger:.2f}, Thirst: {self.gotchi.thirst:.2f}, "

@@ -20,23 +20,18 @@ from game_window import ShellmagotchiGame
 # TODO: Fix time save time load feature so it accurately updates values and uses save states
 # TODO: Create save states for the Tomagatchi itself so player can have perpetual progress
 
-# High priority
-# TODO: Implement rebirth feature (should do some flavor text in info terminal GUI, delete or "archive" the existing gotchi, then start over with the "Wow! You found an egg" thing)
-
-
 def main_loop(gotchi, game):
     while True:
         if gotchi is not None:
             gotchi.update_needs()
-            print("Main Loop: update_needs called") # Debug
             happiness_decay_rate = gotchi.happiness_decay()
             gotchi.update_happiness(happiness_decay_rate)
-            print(f"Main loop happiness: {gotchi.happiness}") # Debug
             gotchi.check_runaway()
             gotchi.check_death()
             gotchi.update_life_stage()
             game.update_ui()
         time.sleep(2.5)
+        print("Main Looped")
 
 def start_main_loop(gotchi, game):
     main_thread = threading.Thread(target=main_loop, args=(gotchi, game))
