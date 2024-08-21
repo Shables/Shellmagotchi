@@ -29,10 +29,28 @@ class ShellmagotchiGame(QMainWindow):
         self.character_frame.setFrameShape(QFrame.Box)
         self.character_frame.setFixedHeight(150)
         
-        self.character_layout = QVBoxLayout(self.character_frame)
+        self.character_layout = QGridLayout(self.character_frame)
         self.character_label = QLabel()
-        self.character_layout.addStretch()
-        self.character_layout.addWidget(self.character_label, alignment=Qt.AlignCenter)
+
+        self.character_layout.addWidget(self.character_label, 0, 0, 2, 1, alignment=Qt.AlignCenter)
+
+#        self.character_layout.addStretch()
+#        self.character_layout.addWidget(self.character_label, alignment=Qt.AlignCenter)
+        
+        # Display life stage, after initialized
+        self.life_stage_label = QLabel()
+        self.life_stage_label.setStyleSheet("color: grey;")
+        self.life_stage_label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
+        self.character_layout.addWidget(self.life_stage_label, 1, 0, alignment=Qt.AlignBottom | Qt.AlignRight)
+        self.life_stage_label.setVisible(False)
+
+        # Display name, after initialized
+        self.name_label = QLabel()
+        self.name_label.setStyleSheet("color: grey;")
+        self.name_label.setAlignment(Qt.AlignBottom | Qt.AlignLeft)
+        self.character_layout.addWidget(self.name_label, 1, 0, alignment=Qt.AlignBottom | Qt.AlignLeft)
+        self.name_label.setVisible(False)
+
         self.layout.addWidget(self.character_frame)
 
         # Middle 1/7: Needs bars
@@ -78,20 +96,6 @@ class ShellmagotchiGame(QMainWindow):
         self.input_box.setPlaceholderText("Enter command...")
         self.input_box.returnPressed.connect(self.process_command)
         self.layout.addWidget(self.input_box)
-
-        # Display life stage, after initialized
-        self.life_stage_label = QLabel()
-        self.life_stage_label.setStyleSheet("color: grey;")
-        self.life_stage_label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
-        self.character_layout.addWidget(self.life_stage_label, alignment=Qt.AlignBottom | Qt.AlignRight)
-        self.life_stage_label.setVisible(False)
-
-        # Display name, after initialized
-        self.name_label = QLabel()
-        self.name_label.setStyleSheet("color: grey;")
-        self.name_label.setAlignment(Qt.AlignBottom | Qt.AlignLeft)
-        self.character_layout.addWidget(self.name_label, alignment=Qt.AlignBottom | Qt.AlignLeft)
-        self.name_label.setVisible(False)
 
         self.add_info("Woah! You found an egg!")
         self.add_info("What would you like to name it?")

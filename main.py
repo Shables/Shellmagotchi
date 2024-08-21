@@ -7,20 +7,22 @@ import random
 import threading
 from shellmagotchi import Shellmagotchi as SM
 from game_window import ShellmagotchiGame
-                                                                                               
-# TODO: Balance the needs decay values
 
+# Low priority
+# TODO: Balance the needs decay values
+# TODO: Flavor text, flavor text everywhere
+# TODO: Lifestages affect needs decay as well as flavor text - simple
+# TODO: Implement cute movement animations to try and give the gotchi some life
 # TODO: Minigames like guess the number, guess the word, simple math problems, hide and seek, etc. Increases socialize stat
 
-# TODO: Different lifestages: [egg], Child, Teen, Adult, Mature, Elder, [dead]. Lifestages affect needs decay as well as flavor text - simple
-
-# TODO: Implement cute movement animations to try and give the gotchi some life
-
-# TODO: Implement rebirth feature 
-
+# Medium priority
+# TODO: Debugging, optimizing, cleaning up code
 # TODO: Fix time save time load feature so it accurately updates values and uses save states
-
 # TODO: Create save states for the Tomagatchi itself so player can have perpetual progress
+
+# High priority
+# TODO: Implement rebirth feature (should do some flavor text in info terminal, then start over with the "Wow! You found an egg" thing)
+
 
 def main_loop(gotchi, game):
     while True:
