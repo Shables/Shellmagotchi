@@ -1,6 +1,7 @@
 import sys
 import traceback
 import time
+from save_system import delete_save
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog,
                                QHBoxLayout, QFrame, QTextEdit, QLineEdit, QProgressBar, QGridLayout, QLabel)
 from PySide6.QtGui import QPixmap, QColor
@@ -20,7 +21,7 @@ class ShellmagotchiGame(QMainWindow):
         self.init_ui()
         self.updateUISignal.connect(self._update_ui) # maybe self._update_ui
         self.waiting_for_rebirth_name = False
-        if self.gotchi:
+        if self.gotchi: # might not need the if statement
             self.connect_gotchi_signals()
         self.debug = debug
 
@@ -122,8 +123,9 @@ class ShellmagotchiGame(QMainWindow):
         self.happiness_label.setVisible(False)
 
         # Prompting player to name their first gotchi
-        self.add_info("Woah! You found an egg!")
-        self.add_info("What would you like to name it?")
+        if not self.gotchi:
+            self.add_info("Woah! You found an egg!")
+            self.add_info("What would you like to name it?")
 
     def _update_ui(self):
         if self.debug:
@@ -169,6 +171,7 @@ class ShellmagotchiGame(QMainWindow):
 
     def complete_rebirth(self, new_name):
         if new_name:
+            delete_save()
             new_gotchi = Shellmagotchi(new_name)
             self.gotchi = new_gotchi
             self.connect_gotchi_signals()
@@ -181,7 +184,7 @@ class ShellmagotchiGame(QMainWindow):
             self.add_info("Please enter a valid name for your new Gotchi.")
     
     def create_initial_gotchi(self, name):
-        if name:
+        if name and not self.gotchi:
             self.gotchi = Shellmagotchi(name)
             self.connect_gotchi_signals()
             self.gotchiCreated.emit(self.gotchi)

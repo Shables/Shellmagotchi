@@ -19,6 +19,9 @@ def save_game(gotchi, last_update_time):
         "life_stage": gotchi.life_stage,
         "alive": gotchi.alive,
         "runaway": gotchi.runaway,
+        "dying": gotchi.dying,
+        "rebirthing": gotchi.rebirthing,
+        "rebirth_signal_sent": gotchi.rebirth_signal_sent
     }
     with open(SAVE_FILE, 'w') as f:
         json.dump(save_data, f, indent=2)

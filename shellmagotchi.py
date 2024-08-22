@@ -15,6 +15,16 @@ class Shellmagotchi(QObject):
 
     def __init__(self, name):
         super().__init__() # Superclass initializer MUST be called
+        save_data, last_update_time = load_game()
+
+        if save_data:
+            self.load_from_save(save_data)
+        else:
+            self.initialize_new(name)
+
+        self.last_update_time = last_update_time or time.time()
+
+    def initialize_new(self, name):
         self.name = name
         self._hunger = 100
         self._thirst = 100
@@ -28,10 +38,27 @@ class Shellmagotchi(QObject):
         self._happiness = 100
         self.age = 0
         self.alive = True
-        self.dying = False
         self.runaway = False
+        self.dying = False
         self.rebirthing = False
         self.rebirth_signal_sent = False
+
+    def load_from_save(self, save_data):
+        self.name = save_data["name"]
+        self.birth_time = datetime.fromisoformat(save_data["birth_time"])
+        self._hunger = save_data["hunger"]
+        self._thirst = save_data["thirst"]
+        self._sleep = save_data["sleep"]
+        self._hygiene = save_data["hygiene"]
+        self._bladder = save_data["bladder"]
+        self._socialize = save_data["socialize"]
+        self._happiness = save_data["happiness"]
+        self.life_stage = save_data["life_stage"]
+        self.alive = save_data["alive"]
+        self.runaway = save_data["runaway"]
+        self.dying = save_data["dying"]
+        self.rebirthing = save_data["rebirthing"]
+        self.rebirth_signal_sent = save_data["rebirth_signal_sent"]
 
     @staticmethod
     def clamp(value, minimum=0, maximum=100):
@@ -121,15 +148,22 @@ class Shellmagotchi(QObject):
 
 # Continously update and track the changing needs  
     def update_needs(self):
-        if not self.alive:
-            self.zero_stats() # Zero stats (lol comments)
-        elif self.alive:
             current_time = time.time()
             elapsed_time = current_time - self.last_update_time
             self.needs_decay(elapsed_time)
-            self.save_last_update_time()
-            print(f"Current Needs -- Hunger: {self.hunger:.2f}, Thirst: {self.thirst:.2f}, Sleep: {self.sleep:.2f}, Hygiene: {self.hygiene:.2f}, Bladder: {self.bladder:.2f}, Socialize: {self.socialize:.2f}")
-            print(f"# Debug: Alive - {self.alive}, Runaway - {self.runaway}, Dying - {self.dying}, Rebirthing - {self.rebirthing}")
+            self.last_update_time = current_time
+            save_game(self, self.last_update_time)
+
+## Scary changes
+#        if not self.alive:
+#            self.zero_stats() # Zero stats (lol comments)
+#        elif self.alive:
+#            current_time = time.time()
+#            elapsed_time = current_time - self.last_update_time
+#            self.needs_decay(elapsed_time)
+#            self.save_last_update_time()
+#            print(f"Current Needs -- Hunger: {self.hunger:.2f}, Thirst: {self.thirst:.2f}, Sleep: {self.sleep:.2f}, Hygiene: {self.hygiene:.2f}, Bladder: {self.bladder:.2f}, Socialize: {self.socialize:.2f}")
+#            print(f"# Debug: Alive - {self.alive}, Runaway - {self.runaway}, Dying - {self.dying}, Rebirthing - {self.rebirthing}")
 
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second

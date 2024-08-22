@@ -13,22 +13,22 @@ from game_window import ShellmagotchiGame
 # TODO: Balance the needs decay values
 # TODO: Flavor text, flavor text everywhere
 # TODO: Lifestages affect needs decay as well as flavor text - simple
-# TODO: Implement cute movement animations to try and give the gotchi some life
 # TODO: Minigames like guess the number, guess the word, simple math problems, hide and seek, etc. Increases socialize stat
-
-# Medium priority
 # TODO: Debugging, optimizing, cleaning up code
-# TODO: Fix time save time load feature so it accurately updates values and uses save states
-# TODO: Create save states for the Tomagatchi itself so player can have perpetual progress
 
-def main_loop(gotchi, game):
-    if gotchi and gotchi.alive:
-        gotchi.update_needs()
-        happiness_decay_rate = gotchi.happiness_decay()
-        gotchi.update_happiness(happiness_decay_rate)
-        gotchi.check_runaway()
-        gotchi.check_death()
-        gotchi.update_life_stage()
+## Medium priority
+# TODO: BUG: Check for if gotchi died while away, ensure it doesn't break anything when player launches main
+# TODO: BUG: Fix the GUI acting like the player just found an egg when there's a perfectly good gotchi in the save data
+# TODO: Implement cute movement animations to try and give the gotchi some life
+
+def main_loop(game):
+    if game.gotchi and game.gotchi.alive:
+        game.gotchi.update_needs()
+        happiness_decay_rate = game.gotchi.happiness_decay()
+        game.gotchi.update_happiness(happiness_decay_rate)
+        game.gotchi.check_runaway()
+        game.gotchi.check_death()
+        game.gotchi.update_life_stage()
         game.update_ui()
 
 if __name__ == '__main__':
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     game = ShellmagotchiGame(debug=True)
 
     timer = QTimer()
-    timer.timeout.connect(lambda: main_loop(game.gotchi, game))
+    timer.timeout.connect(lambda: main_loop(game))
     timer.start(2000)
 
     game.show()

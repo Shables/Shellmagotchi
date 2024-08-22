@@ -21,3 +21,5 @@
 {'name': 'so many tests', 'age': 39.219605, 'life_stage': 'Elder', 'death_time': '2024-08-22 11:30:47'}
 {'name': 'fred', 'age': 39.110582, 'life_stage': 'Elder', 'death_time': '2024-08-22 11:31:34'}
 {'name': 'bigtest', 'age': 39.188392, 'life_stage': 'Elder', 'death_time': '2024-08-22 11:44:17'}
+{'name': 'friendly', 'age': 37.386112, 'life_stage': 'Elder', 'death_time': '2024-08-22 12:36:05'}
+{'name': 'forgotten', 'age': 117.310337, 'life_stage': 'Elder', 'death_time': '2024-08-22 12:38:10'}
