@@ -17,7 +17,6 @@ from game_window import ShellmagotchiGame
 # TODO: Debugging, optimizing, cleaning up code
 
 ## Medium priority
-# TODO: BUG: Check for if gotchi died while away, ensure it doesn't break anything when player launches main
 # TODO: Implement cute movement animations to try and give the gotchi some life
 
 def main_loop(game):

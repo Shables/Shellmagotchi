@@ -7,7 +7,17 @@ from PySide6.QtCore import Signal, QObject
 from datetime import datetime, timedelta
 from save_system import save_game, load_game, delete_save
 from colorama import Fore, Back, Style
+from enum import Enum
 
+class LifeStage(Enum):
+    EGG = "Egg"
+    CHILD = "Child"
+    TEEN = "Teen"
+    ADULT = "Adult"
+    MATURE = "Mature"
+    ELDER = "Elder"
+    DEAD = "Dead"
+    RUNAWAY = "Runaway"
 
 class Shellmagotchi(QObject):
     rebirthRequested = Signal()
@@ -41,7 +51,7 @@ class Shellmagotchi(QObject):
         self._hygiene = 100
         self._bladder = 100
         self._socialize = 100
-        self.life_stage = 'Egg'
+        self.life_stage = LifeStage.EGG
         self.last_update_time = time.time()
         self.birth_time = datetime.now()
         self._happiness = 100
@@ -62,7 +72,7 @@ class Shellmagotchi(QObject):
         self._bladder = save_data["bladder"]
         self._socialize = save_data["socialize"]
         self._happiness = save_data["happiness"]
-        self.life_stage = save_data["life_stage"]
+        self.life_stage = LifeStage(save_data["life_stage"])
         self.alive = save_data["alive"]
         self.runaway = save_data["runaway"]
         self.dying = save_data["dying"]
@@ -292,22 +302,22 @@ class Shellmagotchi(QObject):
         self.age = (current_time - self.birth_time).total_seconds() / age_seconds # Age in minutes
         # Check if dead first, then runaway, then lifestage
         if self.alive == False:
-            self.life_stage = 'Dead'
+            self.life_stage = LifeStage.DEAD
         elif self.runaway == True:
-            self.life_stage = 'Runaway'
+            self.life_stage = LifeStage.RUNAWAY
         else:    
             if self.age < 1:
-                self.life_stage = 'Egg'
+                self.life_stage = LifeStage.EGG
             elif self.age < 7:
-                self.life_stage = 'Child'
+                self.life_stage = LifeStage.CHILD
             elif self.age < 14:
-                self.life_stage = 'Teen'
+                self.life_stage = LifeStage.TEEN
             elif self.age < 21:
-                self.life_stage = 'Adult'
+                self.life_stage = LifeStage.ADULT
             elif self.age < 30:
-                self.life_stage = 'Mature'
+                self.life_stage = LifeStage.MATURE
             else:
-                self.life_stage = 'Elder'
+                self.life_stage = LifeStage.ELDER
 
 # Save/Load current time to seperate file to track needs decay while user away
     def save_last_update_time(self):

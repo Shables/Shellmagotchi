@@ -33,3 +33,5 @@
 {'name': 'scarlet', 'age': 102.578786, 'life_stage': 'Elder', 'death_time': '2024-08-22 13:25:08'}
 {'name': 'tset', 'age': 123.071189, 'life_stage': 'Elder', 'death_time': '2024-08-22 13:27:31'}
 {'name': 'friendliest', 'age': 29.419603, 'life_stage': 'Mature', 'death_time': '2024-08-22 13:33:25'}
+{'name': 'eggsly', 'age': 552.144124, 'life_stage': <LifeStage.ELDER: 'Elder'>, 'death_time': '2024-08-22 13:42:45'}
+{'name': 'meowth', 'age': 39.43663, 'life_stage': <LifeStage.ELDER: 'Elder'>, 'death_time': '2024-08-22 13:56:03'}

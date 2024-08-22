@@ -152,7 +152,7 @@ class ShellmagotchiGame(QMainWindow):
                 bar.setValue(value)
 
             self.happiness_bar.setValue(int(self.gotchi.happiness))
-            self.life_stage_label.setText(self.gotchi.life_stage)
+            self.life_stage_label.setText(self.gotchi.life_stage.value)
             self.name_label.setText(self.gotchi.name)
 
             self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
@@ -245,7 +245,7 @@ class ShellmagotchiGame(QMainWindow):
 
     def update_character_image(self):
         if self.gotchi:
-            image_path = f"assets/{self.gotchi.life_stage.lower()}.png"
+            image_path = f"assets/{self.gotchi.life_stage.value}.png"
             pixmap = QPixmap(image_path)
         if not pixmap.isNull() and pixmap != None:
             self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))

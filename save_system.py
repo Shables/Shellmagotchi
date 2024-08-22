@@ -16,7 +16,7 @@ def save_game(gotchi, last_update_time):
         "bladder": gotchi.bladder,
         "socialize": gotchi.socialize,
         "happiness": gotchi.happiness,
-        "life_stage": gotchi.life_stage,
+        "life_stage": gotchi.life_stage.value,
         "alive": gotchi.alive,
         "runaway": gotchi.runaway,
         "dying": gotchi.dying,
