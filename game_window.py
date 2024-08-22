@@ -144,7 +144,6 @@ class ShellmagotchiGame(QMainWindow):
             # May be the wrong spot for this, listen for signals
             self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
             self.gotchi.died.connect(self.update_ui)
-        print("UI Updated from _update_ui()") # Debug
 
     def update_ui(self):
             self.updateUISignal.emit()
