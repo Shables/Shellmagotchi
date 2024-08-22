@@ -36,3 +36,4 @@
 {'name': 'eggsly', 'age': 552.144124, 'life_stage': <LifeStage.ELDER: 'Elder'>, 'death_time': '2024-08-22 13:42:45'}
 {'name': 'meowth', 'age': 39.43663, 'life_stage': <LifeStage.ELDER: 'Elder'>, 'death_time': '2024-08-22 13:56:03'}
 {'name': 'continued', 'age': 34.906641, 'life_stage': <LifeStage.ADULT: 'Adult'>, 'death_time': '2024-08-22 14:51:02'}
+{'name': 'Triaga', 'age': 300.092196, 'life_stage': <LifeStage.ELDER: 'Elder'>, 'death_time': '2024-08-22 15:58:35'}
