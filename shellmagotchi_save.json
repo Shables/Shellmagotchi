@@ -1,0 +1,18 @@
+{
+  "name": "Triaga",
+  "birth_time": "2024-08-22T15:53:33.211050",
+  "last_update_time": 1724367229.2220318,
+  "hunger": 83.98901915550232,
+  "thirst": 51.96705746650696,
+  "sleep": 83.98901915550232,
+  "hygiene": 83.98901915550232,
+  "bladder": 83.98901915550232,
+  "socialize": 83.98901915550232,
+  "happiness": 100,
+  "life_stage": "Child",
+  "alive": true,
+  "runaway": false,
+  "dying": false,
+  "rebirthing": false,
+  "rebirth_signal_sent": false
+}

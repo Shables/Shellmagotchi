@@ -9,7 +9,8 @@ from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtCore import Qt, QTimer, Signal, QObject, Slot, QRect, QPropertyAnimation, QPoint, QEasingCurve
 from shellmagotchi import Shellmagotchi
 
-
+font_family = "Arial"
+font_size = 12
 color_red = QColor(255, 0, 0)  # TODO: The rest of the colors, probs move to config.py
 
 class ShellmagotchiGame(QMainWindow):
@@ -126,7 +127,22 @@ class ShellmagotchiGame(QMainWindow):
             progress_bar = QProgressBar()
             progress_bar.setTextVisible(True)
             progress_bar.setFixedWidth(200)
-            progress_bar.setStyleSheet(f"QProgressBar::chunk {{background-color: {bar_colors[i].name()}; }}")
+            # progress_bar.setStyleSheet(f"QProgressBar::chunk {{background-color: {bar_colors[i].name()}; }}")
+
+            progress_bar.setStyleSheet(f"""
+                QProgressBar {{
+                    border: 2px solid grey;
+                    border-radius: 5px;
+                    text-align: center;
+                    color: black;  /* Set the text color */
+                    font-family: '{font_family}';  /* Set the font family */
+                    font-size: {font_size}px;  /* Set the font size */
+                }}
+                QProgressBar::chunk {{
+                    background-color: {bar_colors[i].name()};
+                    width: 20px;  /* Chunk size */
+                }}
+            """)
 
             self.progress_bars[need] = progress_bar
 
@@ -140,7 +156,22 @@ class ShellmagotchiGame(QMainWindow):
         self.happiness_label.setVisible(False)
         self.happiness_bar = QProgressBar()
         self.happiness_bar.setTextVisible(True)
-        self.happiness_bar.setStyleSheet("QProgressBar::chunk {background-color: #FFFF00; }") # Yellow?
+        # self.happiness_bar.setStyleSheet("QProgressBar::chunk {background-color: #FFFF00; }") # Yellow?
+        self.happiness_bar.setStyleSheet(f"""
+                QProgressBar {{
+                    border: 2px solid grey;
+                    border-radius: 5px;
+                    text-align: center;
+                    color: black;  /* Set the text color */
+                    font-family: '{font_family}';  /* Set the font family */
+                    font-size: {font_size}px;  /* Set the font size */
+                }}
+                QProgressBar::chunk {{
+                    background-color: #800080; /* Purple Color*/
+                    width: 20px;  /* Chunk size */
+                }}
+            """)
+
 
         self.layout.addWidget(self.happiness_label, alignment=Qt.AlignCenter)
         self.layout.addWidget(self.happiness_bar)
