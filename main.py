@@ -13,7 +13,7 @@ from game_window import ShellmagotchiGame
 # TODO: Balance the needs decay values
 # TODO: Flavor text, flavor text everywhere
 # TODO: Lifestages affect needs decay as well as flavor text - simple
-# TODO: Minigames like guess the number, guess the word, simple math problems, hide and seek, etc. Increases socialize stat
+# TODO: MAYBE: Minigames like guess the number, guess the word, simple math problems, hide and seek, etc. Increases socialize stat
 # TODO: Debugging, optimizing, cleaning up code
 
 ## Medium priority
@@ -28,6 +28,7 @@ def main_loop(game):
         game.gotchi.check_death()
         game.gotchi.update_life_stage()
         game.update_ui()
+        print("Main looped")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -35,7 +36,7 @@ if __name__ == '__main__':
 
     timer = QTimer()
     timer.timeout.connect(lambda: main_loop(game))
-    timer.start(2000)
+    timer.start(1000)
 
     game.show()
     sys.exit(app.exec())

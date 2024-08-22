@@ -1,11 +1,12 @@
 import sys
 import traceback
 import time
+import random
 from save_system import delete_save, load_game
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog,
                                QHBoxLayout, QFrame, QTextEdit, QLineEdit, QProgressBar, QGridLayout, QLabel)
 from PySide6.QtGui import QPixmap, QColor
-from PySide6.QtCore import Qt, QTimer, Signal, QObject, Slot
+from PySide6.QtCore import Qt, QTimer, Signal, QObject, Slot, QPropertyAnimation, QPoint, QEasingCurve
 from shellmagotchi import Shellmagotchi
 
 
@@ -22,6 +23,9 @@ class ShellmagotchiGame(QMainWindow):
         self.updateUISignal.connect(self._update_ui) # maybe self._update_ui
         self.waiting_for_rebirth_name = False
         self.debug = debug
+        self.animation = None
+        self.last_animation_time = 0
+        self.animation_cooldown = 10
 
         if not self.gotchi:
             save_data, _ = load_game()
@@ -73,10 +77,16 @@ class ShellmagotchiGame(QMainWindow):
         self.character_frame.setFrameShape(QFrame.Box)
         self.character_frame.setFixedHeight(150)
         
-        self.character_layout = QGridLayout(self.character_frame)
-        self.character_label = QLabel()
+        # Changes aa0
+        self.character_layout = QGridLayout(self.character_frame) # Moved from scary changes
+        self.character_label = QLabel(self.character_frame)
+        self.character_label.setAlignment(Qt.AlignCenter)
+        self.character_layout.addWidget(self.character_label, 0, 0, alignment=Qt.AlignCenter)
 
-        self.character_layout.addWidget(self.character_label, 0, 0, 2, 1, alignment=Qt.AlignCenter)
+        # Scary Changes aa0
+    
+        #self.character_label = QLabel()
+        #self.character_layout.addWidget(self.character_label, 0, 0, 2, 1, alignment=Qt.AlignCenter)
        
         # Display life stage, after initialized
         self.life_stage_label = QLabel()
@@ -157,7 +167,9 @@ class ShellmagotchiGame(QMainWindow):
 
             self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
             self.update_terminal()
+            self.central_widget.layout().update()
             self.update_character_image()
+
 
     def update_ui(self):
             self.updateUISignal.emit()
@@ -202,6 +214,7 @@ class ShellmagotchiGame(QMainWindow):
     def create_initial_gotchi(self, name):
         if name and not self.gotchi:
             self.gotchi = Shellmagotchi(name)
+            self.gotchi.game = self
             self.connect_gotchi_signals()
             self.gotchiCreated.emit(self.gotchi)
             self.add_info(f"Take good care of {name}!")
@@ -247,11 +260,78 @@ class ShellmagotchiGame(QMainWindow):
         if self.gotchi:
             image_path = f"assets/{self.gotchi.life_stage.value}.png"
             pixmap = QPixmap(image_path)
-        if not pixmap.isNull() and pixmap != None:
+        if not pixmap.isNull() and pixmap is not None:
             self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            animation_current_time = time.time() * 1000 # Convert to milliseconds
+            if animation_current_time - self.last_animation_time > self.animation_cooldown:
+                self.animate_character()
+                self.last_animation_time = animation_current_time       
         else:
             print(f"Image not found: {image_path}")
     
+    def animate_character(self):
+        print("Attempting to animate character")
+        if str(self.gotchi.life_stage.value).lower() == "egg":
+            self.animate_egg()
+            print("sent egg animations")
+        else:
+            animation_type = random.choice(["move", "jump", "flip"])
+            if animation_type == "move":
+                self.animate_move()
+            elif animation_type == "jump":
+                self.animate_jump()
+            elif animation_type == "flip":
+                self.animate_flip()
+            print("sent animation calls")
+
+    def animate_egg(self):
+        animation = QPropertyAnimation(self.character_label, b'pos')
+        animation.setDuration(1000)
+        start_pos = self.character_label.pos()
+        animation.setStartValue(start_pos)
+        animation.setKeyValueAt(0.25, start_pos + QPoint(10, 0))
+        animation.setKeyValueAt(0.75, start_pos + QPoint(-10, 0))
+        animation.setEndValue(start_pos)
+        animation.setEasingCurve(QEasingCurve.InOutQuad)
+        animation.start()
+        print("Egg animation started")
+
+    def animate_move(self):
+        animation = QPropertyAnimation(self.character_label, b'pos')
+        animation.setDuration(1000)
+        start_pos = self.character_label.pos()
+        end_pos = start_pos + QPoint(random.choice([-50, 50]), 0)
+        animation.setStartValue(start_pos)
+        animation.setEndValue(end_pos)
+        animation.setEasingCurve(QEasingCurve.InOutQuad)
+        animation.start()
+
+    def animate_jump(self):
+        animation = QPropertyAnimation(self.character_label, b'pos')
+        animation.setDuration(500)
+        start_pos = self.character_label.pos()
+        animation.setStartValue(start_pos)
+        animation.setKeyValueAt(0.5, start_pos + QPoint(0, -30))
+        animation.setEndValue(start_pos)
+        animation.setEasingCurve(QEasingCurve.OutInQuad)
+        animation.start()
+
+    def animate_flip(self):
+        animation = QPropertyAnimation(self.character_label, b'geometry')
+        animation.setDuration(500)
+        start_geometry = self.character_label.geometry()
+        animation.setStartValue(start_geometry)
+
+        mid_geometry = start_geometry
+        mid_geometry.setWidth(1)
+
+        end_geometry = start_geometry
+
+        animation.setKeyValueAt(0.5, mid_geometry)
+        animation.setEndValue(end_geometry)
+        animation.setEasingCurve(QEasingCurve.InOutQuad)
+        animation.start()
+                                
     def add_info(self, text):
         self.info_frame.append(text)
         

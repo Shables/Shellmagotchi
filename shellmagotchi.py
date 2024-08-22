@@ -306,15 +306,15 @@ class Shellmagotchi(QObject):
         elif self.runaway == True:
             self.life_stage = LifeStage.RUNAWAY
         else:    
-            if self.age < 1:
+            if self.age < 11:
                 self.life_stage = LifeStage.EGG
-            elif self.age < 7:
+            elif self.age < 22:
                 self.life_stage = LifeStage.CHILD
-            elif self.age < 14:
+            elif self.age < 33:
                 self.life_stage = LifeStage.TEEN
-            elif self.age < 21:
+            elif self.age < 44:
                 self.life_stage = LifeStage.ADULT
-            elif self.age < 30:
+            elif self.age < 55:
                 self.life_stage = LifeStage.MATURE
             else:
                 self.life_stage = LifeStage.ELDER
