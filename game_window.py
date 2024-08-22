@@ -15,7 +15,7 @@ color_red = QColor(255, 0, 0)  # TODO: The rest of the colors, probs move to con
 
 class ShellmagotchiGame(QMainWindow):
     gotchiCreated = Signal(Shellmagotchi) # Signal Defined
-    updateUISignal = Signal()
+    updateUISignal = Signal(bool)
 
     def __init__(self, gotchi=None, debug=False):
         super().__init__()
@@ -42,6 +42,10 @@ class ShellmagotchiGame(QMainWindow):
             self.connect_gotchi_signals()
             self.show_all_ui_elements()
             self.update_ui()
+            self.animation_timer = QTimer()
+            self.animation_timer.timeout.connect(self.update_character_image)
+            self.animation_timer.start(1000)
+
 
     def show_all_ui_elements(self):
         self.happiness_bar.setVisible(True)
@@ -194,12 +198,14 @@ class ShellmagotchiGame(QMainWindow):
         self.happiness_bar.setVisible(False)
         self.happiness_label.setVisible(False)
 
-    def _update_ui(self):
+    def _update_ui(self, update_character_image=True):
         if self.debug:
             print("update_ui() called from ShellmagotchiGame class")
         if self.gotchi:
-            if self.animation and self.animation.state() == QPropertyAnimation.Running:
-                return # Skip updating UI while animation is running... easy fix
+            if update_character_image:
+                self.update_character_image()
+            # if self.animation and self.animation.state() == QPropertyAnimation.Running:
+                # return # Skip updating UI while animation is running... easy fix
             else:
                 for need, bar in self.progress_bars.items():
                     value = getattr(self.gotchi, need)
@@ -215,8 +221,8 @@ class ShellmagotchiGame(QMainWindow):
                 self.update_character_image()
 
 
-    def update_ui(self):
-            self.updateUISignal.emit()
+    def update_ui(self, update_character_image=True):
+            self.updateUISignal.emit(update_character_image)
 
     @Slot()
     def handle_rebirth_request(self):
@@ -302,11 +308,11 @@ class ShellmagotchiGame(QMainWindow):
             return command
 
     def update_character_image(self):
-        if not self.animation or self.animation.state() is not QPropertyAnimation.Running:
+        ## if not self.animation or self.animation.state() is not QPropertyAnimation.Running:
             if self.gotchi:
                 image_path = f"assets/{self.gotchi.life_stage.value}.png"
                 pixmap = QPixmap(image_path)
-            if not pixmap.isNull() and pixmap is not None:
+            if not pixmap.isNull(): ## and pixmap is not None:
                 self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
                 
                 # Only animate if enough time has passed since last animation

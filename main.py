@@ -27,7 +27,7 @@ def main_loop(game):
         game.gotchi.check_runaway()
         game.gotchi.check_death()
         game.gotchi.update_life_stage()
-        game.update_ui()
+        game.update_ui(update_character_image=False) # Animations are run seperate to avoid overwrite
         print("Main looped")
 
 if __name__ == '__main__':
@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     timer = QTimer()
     timer.timeout.connect(lambda: main_loop(game))
-    timer.start(3000)
+    timer.start(1000)
 
     game.show()
     sys.exit(app.exec())
