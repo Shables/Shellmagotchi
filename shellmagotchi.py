@@ -4,7 +4,8 @@ import time
 import random
 import threading
 from PySide6.QtCore import Signal, QObject
-from datetime import datetime
+from datetime import datetime, timedelta
+from save_system import save_game, load_game, delete_save
 from colorama import Fore, Back, Style
 
 
@@ -237,7 +238,7 @@ class Shellmagotchi(QObject):
             self.rebirthRequested.emit()
             print("Sending signal for rebirth")
             self.rebirth_signal_sent = True
-            
+
 # Save the dead gotchi to a txt file for archive
     def archive_gotchi(self):
         data_to_archive = {
