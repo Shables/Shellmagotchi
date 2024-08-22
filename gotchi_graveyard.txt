@@ -15,3 +15,6 @@
 {'name': 'Sighj', 'age': 38.133446, 'life_stage': 'Elder', 'death_time': '2024-08-21 15:27:15'}
 {'name': 'Trytrkyu', 'age': 38.128279, 'life_stage': 'Elder', 'death_time': '2024-08-21 15:29:30'}
 {'name': 'Fuckit]', 'age': 38.12384, 'life_stage': 'Elder', 'death_time': '2024-08-21 15:32:10'}
+{'name': 'Emma', 'age': 38.12405, 'life_stage': 'Elder', 'death_time': '2024-08-21 18:15:37'}
+{'name': 'Sonnet', 'age': 38.504964, 'life_stage': 'Elder', 'death_time': '2024-08-22 11:07:30'}
+{'name': 'Teststs', 'age': 38.211006, 'life_stage': 'Elder', 'death_time': '2024-08-22 11:10:08'}

@@ -25,3 +25,19 @@
 # to connect to the game_window.py module.. so.. more signals and slots
 #        if self.gotchi:
 #            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
+
+
+
+
+## I believe this code is redundant.. but maybe not
+#            # Reset UI Is this needed???
+#            self.info_frame.clear()
+#            for bar in self.progress_bars.values():
+#                bar.setValue(100)
+#            self.happiness_bar.setValue(100)
+#            self.update_character_image()
+#            self.input_box.clear()
+#
+#            # Send signal for new main_loop (may not be necessary)
+#            self.gotchiCreated.emit(self.gotchi)
+        

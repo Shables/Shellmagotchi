@@ -1,10 +1,10 @@
 import sys
 import traceback
 import time
-from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog,
                                QHBoxLayout, QFrame, QTextEdit, QLineEdit, QProgressBar, QGridLayout, QLabel)
 from PySide6.QtGui import QPixmap, QColor
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import Qt, QTimer, Signal, QObject, Slot
 from shellmagotchi import Shellmagotchi
 
 
@@ -12,12 +12,32 @@ color_red = QColor(255, 0, 0)  # TODO: The rest of the colors
 
 class ShellmagotchiGame(QMainWindow):
     gotchiCreated = Signal(Shellmagotchi) # Signal Defined
+    updateUISignal = Signal()
 
-    def __init__(self, gotchi=None):
+    def __init__(self, gotchi=None, debug=False):
         super().__init__()
         self.gotchi = gotchi
         self.init_ui()
+        self.updateUISignal.connect(self._update_ui) # maybe self._update_ui
+        self.waiting_for_rebirth_name = False
+        if self.gotchi:
+            self.connect_gotchi_signals()
+        self.debug = debug
 
+    # Signal Handling
+    def connect_gotchi_signals(self):
+        if self.gotchi:
+            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
+            self.gotchi.died.connect(self.update_ui)
+
+    def disconnect_gotchi_signals(self):
+        if self.gotchi:
+            try:
+                self.gotchi.rebirthRequested.disconnect(self.handle_rebirth_request)
+                self.gotchi.died.disconnect(self.update_ui)
+            except TypeError:
+                print("Warning: Failed to disconnect a signal, likely none connected")
+    # GUI
     def init_ui(self):
         self.setWindowTitle("Tamagotchi Game")
         self.setGeometry(100, 100, 800, 800)
@@ -105,8 +125,9 @@ class ShellmagotchiGame(QMainWindow):
         self.add_info("Woah! You found an egg!")
         self.add_info("What would you like to name it?")
 
-    def update_ui(self):
-        print("update_ui() called from ShellmagotchiGame class")
+    def _update_ui(self):
+        if self.debug:
+            print("update_ui() called from ShellmagotchiGame class")
         if self.gotchi:
             for need, bar in self.progress_bars.items():
                 value = getattr(self.gotchi, need)
@@ -123,88 +144,95 @@ class ShellmagotchiGame(QMainWindow):
             # May be the wrong spot for this, listen for signals
             self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
             self.gotchi.died.connect(self.update_ui)
+        print("UI Updated from _update_ui()") # Debug
 
+    def update_ui(self):
+            self.updateUISignal.emit()
+
+    @Slot()
     def handle_rebirth_request(self):
-        print("HANDLE REBIRTH REQUEST() TRIGGERED")
-        self.add_info("Wait... something's happening")
-        self.add_info(f"You see an egg sitting in the ashes of {self.gotchi.name}")
-        self.add_info(f"I ... guess you should name it?.. what would you like to name it?")
-        command = self.input_box.text().strip().title()
-        new_name = command
+        if not self.waiting_for_rebirth_name:
+            self.waiting_for_rebirth_name = True
+            self.disconnect_gotchi_signals()
+            if self.debug:
+                print("HANDLE REBIRTH REQUEST() TRIGGERED")
+            self.add_info("Wait... something's happening")
+            self.add_info(f"You see an egg sitting in the ashes of {self.gotchi.name}")
+            self.add_info(f"I ... guess you should name it?.. what would you like to name it?")
+            self.input_box.setPlaceholderText("Enter new Gotchi name...")
 
-        if new_name:
-            # Disconnect signal, trying here
-            self.gotchi.rebirthRequested.disconnect() 
-
-            # Initializing new gotchi to replace the old one
-            new_gotchi = Shellmagotchi(new_name)
-            self.gotchi = new_gotchi
-
-# Should be done elsewhere; Reconnecting signals for the new gotchi
-#            self.gotchi.rebirthRequested.connect(self.handle_rebirth_request)
-#            self.gotchi.died.connect(self.update_ui)
-
-            self.add_info(f"Take good care of {self.gotchi.name}!")
-
-            # Reset UI
-            self.info_frame.clear()
-            for bar in self.progress_bars.values():
-                bar.setValue(100)
-            self.happiness_bar.setValue(100)
-            self.update_character_image()
-            self.input_box.clear()
-
-            # Send signal for new main_loop (may not be necessary)
-            self.gotchiCreated.emit(self.gotchi)
-        
     def process_command(self):
         command = self.input_box.text().strip().lower()
         self.input_box.clear()
+
+        if self.waiting_for_rebirth_name:
+            self.complete_rebirth(command)
+        elif not self.gotchi:
+            self.create_initial_gotchi(command)
+        else:
+            self.handle_regular_command(command)
+
+    def complete_rebirth(self, new_name):
+        if new_name:
+            new_gotchi = Shellmagotchi(new_name)
+            self.gotchi = new_gotchi
+            self.connect_gotchi_signals()
+            self.gotchiCreated.emit(self.gotchi)     
+            self.add_info(f"Take good care of {self.gotchi.name}!")
+            self.update_ui()
+            self.waiting_for_rebirth_name = False
+            self.input_box.setPlaceholderText("Enter command...")
+        else:
+            self.add_info("Please enter a valid name for your new Gotchi.")
+    
+    def create_initial_gotchi(self, name):
+        if name:
+            self.gotchi = Shellmagotchi(name)
+            self.connect_gotchi_signals()
+            self.gotchiCreated.emit(self.gotchi)
+            self.add_info(f"Take good care of {name}!")
+            self.update_ui()
+
+            self.happiness_bar.setVisible(True)
+            self.happiness_label.setVisible(True)
+            self.life_stage_label.setVisible(True)
+            self.name_label.setVisible(True)
+            self.character_label.setVisible(True)
+            self.stats_frame.setVisible(True)
+            self.update_character_image()
+            self.update_ui()
+            
+    def handle_regular_command(self, command):
         if not self.gotchi:
-            name = command.strip().title()
-            if name:
-                self.gotchi = Shellmagotchi(name)
-                self.gotchiCreated.emit(self.gotchi) # Emit signal when gotchi named and created
-                self.add_info(f"Take good care of {name}!")
-
-                self.happiness_bar.setVisible(True)
-                self.happiness_label.setVisible(True)
-                self.life_stage_label.setVisible(True)
-                self.name_label.setVisible(True)
-                self.character_label.setVisible(True)
-                self.stats_frame.setVisible(True)
-                self.update_character_image()
-                self.update_ui()
-                
-
-            elif self.gotchi and not self.gotchi.rebirthing: # Only Handle These Commands when Gotchi is True
-                if command in ['feed', 'food', 'breakfast', 'lunch', 'dinner', 'snack']:
-                    self.gotchi.feed()
-                elif command in ['water', 'drink', 'thirst', 'give water']:
-                    self.gotchi.give_water()
-                elif command in ['bathe', 'wash', 'bath', 'shower']:
-                    self.gotchi.bathe()
-                elif command in ['bedtime', 'tuckin', 'tuck-in', 'sleepy']:
-                    self.gotchi.tuck_in()
-                elif command in ['potty', 'bathroom', 'pee']:
-                    self.gotchi.potty()
-                elif command in ['socialize', 'play']:
-                    self.gotchi.social()
-                elif command == 'rebirth':
-                    self.add_info("Are you sure you would like to rebirth?")
-                    self.add_info("Rebirthing will archive the current gotchi and spawn a new egg")
-                    self.add_info("Confirm? (Y/N): ")
-                    if command == 'y':
-                        self.update_ui()
-                        self.gotchi.rebirth()
-                    elif command == 'n':
-                        self.add_info("Cancelling rebirth...")
-                    else:
-                        self.add_info("Unknown command")
+            print("Something wrong with handle_regular_command method")
+        elif self.gotchi and not self.gotchi.rebirthing: # Only Handle These Commands when Gotchi is True
+            if command in ['feed', 'food', 'breakfast', 'lunch', 'dinner', 'snack']:
+                self.gotchi.feed()
+            elif command in ['water', 'drink', 'thirst', 'give water']:
+                self.gotchi.give_water()
+            elif command in ['bathe', 'wash', 'bath', 'shower']:
+                self.gotchi.bathe()
+            elif command in ['bedtime', 'tuckin', 'tuck-in', 'sleepy']:
+                self.gotchi.tuck_in()
+            elif command in ['potty', 'bathroom', 'pee']:
+                self.gotchi.potty()
+            elif command in ['socialize', 'play']:
+                self.gotchi.social()
+            elif command == 'rebirth':
+                self.add_info("Are you sure you would like to rebirth?")
+                self.add_info("Rebirthing will archive the current gotchi and spawn a new egg")
+                self.add_info("Confirm? (Y/N): ")
+                if command == 'y':
+                    self.update_ui()
+                    self.gotchi.rebirth()
+                elif command == 'n':
+                    self.add_info("Cancelling rebirth...")
                 else:
                     self.add_info("Unknown command")
-            elif self.gotchi and not self.gotchi.rebirthing:
-                return command
+            else:
+                self.add_info("Unknown command")
+        elif self.gotchi and not self.gotchi.rebirthing:
+            return command
 
     def update_character_image(self):
         if self.gotchi:
@@ -215,7 +243,6 @@ class ShellmagotchiGame(QMainWindow):
         else:
             print(f"Image not found: {image_path}")
     
-
     def add_info(self, text):
         self.info_frame.append(text)
         

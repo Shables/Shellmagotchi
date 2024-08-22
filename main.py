@@ -1,5 +1,6 @@
 import PySide6 as QT
 from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QTimer
 import os
 import sys
 import time
@@ -21,35 +22,22 @@ from game_window import ShellmagotchiGame
 # TODO: Create save states for the Tomagatchi itself so player can have perpetual progress
 
 def main_loop(gotchi, game):
-    while gotchi.alive:
-        if gotchi is not None:
-            if gotchi.alive == True:
-                gotchi.update_needs()
-                happiness_decay_rate = gotchi.happiness_decay()
-                gotchi.update_happiness(happiness_decay_rate)
-                gotchi.check_runaway()
-                gotchi.check_death()
-                gotchi.update_life_stage()
-            game.update_ui()
-            time.sleep(2)
-            print("Main Looped")
-        else:
-            break # Get me out of here
-
-def start_main_loop(gotchi, game):
-    main_thread = threading.Thread(target=main_loop, args=(gotchi, game))
-    main_thread.daemon = True
-    main_thread.start()
+    if gotchi and gotchi.alive:
+        gotchi.update_needs()
+        happiness_decay_rate = gotchi.happiness_decay()
+        gotchi.update_happiness(happiness_decay_rate)
+        gotchi.check_runaway()
+        gotchi.check_death()
+        gotchi.update_life_stage()
+        game.update_ui()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    game = ShellmagotchiGame()
+    game = ShellmagotchiGame(debug=True)
 
-    # Connecting a signal from game_window to main.py to trigger main loop
-    game.gotchiCreated.connect(lambda gotchi: start_main_loop(gotchi, game))
+    timer = QTimer()
+    timer.timeout.connect(lambda: main_loop(game.gotchi, game))
+    timer.start(2000)
 
     game.show()
     sys.exit(app.exec())
-
-
-
