@@ -6,11 +6,11 @@ from save_system import delete_save, load_game
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog,
                                QHBoxLayout, QFrame, QTextEdit, QLineEdit, QProgressBar, QGridLayout, QLabel)
 from PySide6.QtGui import QPixmap, QColor
-from PySide6.QtCore import Qt, QTimer, Signal, QObject, Slot, QPropertyAnimation, QPoint, QEasingCurve
+from PySide6.QtCore import Qt, QTimer, Signal, QObject, Slot, QRect, QPropertyAnimation, QPoint, QEasingCurve
 from shellmagotchi import Shellmagotchi
 
 
-color_red = QColor(255, 0, 0)  # TODO: The rest of the colors
+color_red = QColor(255, 0, 0)  # TODO: The rest of the colors, probs move to config.py
 
 class ShellmagotchiGame(QMainWindow):
     gotchiCreated = Signal(Shellmagotchi) # Signal Defined
@@ -75,13 +75,23 @@ class ShellmagotchiGame(QMainWindow):
         # Top 2/7: Character display
         self.character_frame = QFrame()
         self.character_frame.setFrameShape(QFrame.Box)
-        self.character_frame.setFixedHeight(150)
+        self.character_frame.setFixedSize(800, 200)
+
+        self.character_container = QWidget(self.character_frame)
+        self.character_container.setFixedSize(800, 200)
         
-        # Changes aa0
-        self.character_layout = QGridLayout(self.character_frame) # Moved from scary changes
-        self.character_label = QLabel(self.character_frame)
+        self.character_label = QLabel(self.character_container)
         self.character_label.setAlignment(Qt.AlignCenter)
-        self.character_layout.addWidget(self.character_label, 0, 0, alignment=Qt.AlignCenter)
+
+        self.character_layout = QGridLayout(self.character_container)
+        self.character_layout.addWidget(self.character_label, 0, 0, 2, 1, alignment=Qt.AlignCenter)
+
+        self.layout.addWidget(self.character_frame, alignment=Qt.AlignCenter)
+        # Scary Scary Changes aa0
+        # self.character_layout = QGridLayout(self.character_frame) # Moved from scary changes
+        # self.character_label = QLabel(self.character_frame)
+        # self.character_label.setAlignment(Qt.AlignCenter)
+        # self.character_layout.addWidget(self.character_label, 0, 0, alignment=Qt.AlignCenter)
 
         # Scary Changes aa0
     
@@ -115,7 +125,7 @@ class ShellmagotchiGame(QMainWindow):
             label = QLabel(f"{need.capitalize()}:")
             progress_bar = QProgressBar()
             progress_bar.setTextVisible(True)
-            progress_bar.setFixedWidth(300)
+            progress_bar.setFixedWidth(200)
             progress_bar.setStyleSheet(f"QProgressBar::chunk {{background-color: {bar_colors[i].name()}; }}")
 
             self.progress_bars[need] = progress_bar
@@ -213,6 +223,7 @@ class ShellmagotchiGame(QMainWindow):
     
     def create_initial_gotchi(self, name):
         if name and not self.gotchi:
+            name = name.title()
             self.gotchi = Shellmagotchi(name)
             self.gotchi.game = self
             self.connect_gotchi_signals()
@@ -262,6 +273,8 @@ class ShellmagotchiGame(QMainWindow):
             pixmap = QPixmap(image_path)
         if not pixmap.isNull() and pixmap is not None:
             self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            
+            # Only animate if enough time has passed since last animation
             animation_current_time = time.time() * 1000 # Convert to milliseconds
             if animation_current_time - self.last_animation_time > self.animation_cooldown:
                 self.animate_character()
@@ -286,19 +299,20 @@ class ShellmagotchiGame(QMainWindow):
 
     def animate_egg(self):
         animation = QPropertyAnimation(self.character_label, b'pos')
-        animation.setDuration(1000)
+        animation.setDuration(1500) # 5 seconds
         start_pos = self.character_label.pos()
         animation.setStartValue(start_pos)
-        animation.setKeyValueAt(0.25, start_pos + QPoint(10, 0))
-        animation.setKeyValueAt(0.75, start_pos + QPoint(-10, 0))
+        animation.setKeyValueAt(0.25, start_pos + QPoint(20, 0))
+        animation.setKeyValueAt(0.75, start_pos + QPoint(-20, 0))
         animation.setEndValue(start_pos)
         animation.setEasingCurve(QEasingCurve.InOutQuad)
         animation.start()
         print("Egg animation started")
 
     def animate_move(self):
+        print("move animation")
         animation = QPropertyAnimation(self.character_label, b'pos')
-        animation.setDuration(1000)
+        animation.setDuration(1500)
         start_pos = self.character_label.pos()
         end_pos = start_pos + QPoint(random.choice([-50, 50]), 0)
         animation.setStartValue(start_pos)
@@ -307,28 +321,28 @@ class ShellmagotchiGame(QMainWindow):
         animation.start()
 
     def animate_jump(self):
+        print("jump animation")
         animation = QPropertyAnimation(self.character_label, b'pos')
         animation.setDuration(500)
         start_pos = self.character_label.pos()
         animation.setStartValue(start_pos)
-        animation.setKeyValueAt(0.5, start_pos + QPoint(0, -30))
+        animation.setKeyValueAt(0.5, start_pos + QPoint(0, -40))
         animation.setEndValue(start_pos)
         animation.setEasingCurve(QEasingCurve.OutInQuad)
         animation.start()
 
     def animate_flip(self):
+        print("flip animation")
         animation = QPropertyAnimation(self.character_label, b'geometry')
         animation.setDuration(500)
         start_geometry = self.character_label.geometry()
         animation.setStartValue(start_geometry)
 
-        mid_geometry = start_geometry
-        mid_geometry.setWidth(1)
-
-        end_geometry = start_geometry
+        mid_geometry = QRect(start_geometry.x() + start_geometry.width() / 2,
+                             start_geometry.y(), 1, start_geometry.height())
 
         animation.setKeyValueAt(0.5, mid_geometry)
-        animation.setEndValue(end_geometry)
+        animation.setEndValue(start_geometry)
         animation.setEasingCurve(QEasingCurve.InOutQuad)
         animation.start()
                                 

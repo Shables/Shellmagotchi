@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     timer = QTimer()
     timer.timeout.connect(lambda: main_loop(game))
-    timer.start(1000)
+    timer.start(3000)
 
     game.show()
     sys.exit(app.exec())
