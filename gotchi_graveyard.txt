@@ -23,3 +23,13 @@
 {'name': 'bigtest', 'age': 39.188392, 'life_stage': 'Elder', 'death_time': '2024-08-22 11:44:17'}
 {'name': 'friendly', 'age': 37.386112, 'life_stage': 'Elder', 'death_time': '2024-08-22 12:36:05'}
 {'name': 'forgotten', 'age': 117.310337, 'life_stage': 'Elder', 'death_time': '2024-08-22 12:38:10'}
+{'name': 'asdfdfdfdfd', 'age': 4.828499, 'life_stage': 'Child', 'death_time': '2024-08-22 12:51:39'}
+{'name': 'testsss', 'age': 3.507479, 'life_stage': 'Child', 'death_time': '2024-08-22 12:51:48'}
+{'name': 'tests', 'age': 33.857779, 'life_stage': 'Elder', 'death_time': '2024-08-22 12:53:04'}
+{'name': 'fredduy', 'age': 4.634245, 'life_stage': 'Child', 'death_time': '2024-08-22 12:53:15'}
+{'name': 'asdfd', 'age': 27.705921, 'life_stage': 'Mature', 'death_time': '2024-08-22 12:54:10'}
+{'name': 'asdfdd', 'age': 2.911336, 'life_stage': 'Child', 'death_time': '2024-08-22 12:54:23'}
+{'name': 'fred', 'age': 38.596206, 'life_stage': 'Elder', 'death_time': '2024-08-22 13:23:17'}
+{'name': 'scarlet', 'age': 102.578786, 'life_stage': 'Elder', 'death_time': '2024-08-22 13:25:08'}
+{'name': 'tset', 'age': 123.071189, 'life_stage': 'Elder', 'death_time': '2024-08-22 13:27:31'}
+{'name': 'friendliest', 'age': 29.419603, 'life_stage': 'Mature', 'death_time': '2024-08-22 13:33:25'}

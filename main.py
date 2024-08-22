@@ -18,7 +18,6 @@ from game_window import ShellmagotchiGame
 
 ## Medium priority
 # TODO: BUG: Check for if gotchi died while away, ensure it doesn't break anything when player launches main
-# TODO: BUG: Fix the GUI acting like the player just found an egg when there's a perfectly good gotchi in the save data
 # TODO: Implement cute movement animations to try and give the gotchi some life
 
 def main_loop(game):

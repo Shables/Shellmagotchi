@@ -1,7 +1,7 @@
 import sys
 import traceback
 import time
-from save_system import delete_save
+from save_system import delete_save, load_game
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog,
                                QHBoxLayout, QFrame, QTextEdit, QLineEdit, QProgressBar, QGridLayout, QLabel)
 from PySide6.QtGui import QPixmap, QColor
@@ -21,9 +21,30 @@ class ShellmagotchiGame(QMainWindow):
         self.init_ui()
         self.updateUISignal.connect(self._update_ui) # maybe self._update_ui
         self.waiting_for_rebirth_name = False
-        if self.gotchi: # might not need the if statement
-            self.connect_gotchi_signals()
         self.debug = debug
+
+        if not self.gotchi:
+            save_data, _ = load_game()
+            if save_data:
+                self.gotchi = Shellmagotchi(save_data["name"])
+                self.connect_gotchi_signals()
+                self.show_all_ui_elements()
+                self.update_ui()
+            else:
+                self.add_info("Woah! You found an egg!")
+                self.add_info("What would you like to name it?")
+        else:
+            self.connect_gotchi_signals()
+            self.show_all_ui_elements()
+            self.update_ui()
+
+    def show_all_ui_elements(self):
+        self.happiness_bar.setVisible(True)
+        self.happiness_label.setVisible(True)
+        self.life_stage_label.setVisible(True)
+        self.name_label.setVisible(True)
+        self.character_label.setVisible(True)
+        self.stats_frame.setVisible(True)
 
     # Signal Handling
     def connect_gotchi_signals(self):
@@ -122,11 +143,6 @@ class ShellmagotchiGame(QMainWindow):
         self.happiness_bar.setVisible(False)
         self.happiness_label.setVisible(False)
 
-        # Prompting player to name their first gotchi
-        if not self.gotchi:
-            self.add_info("Woah! You found an egg!")
-            self.add_info("What would you like to name it?")
-
     def _update_ui(self):
         if self.debug:
             print("update_ui() called from ShellmagotchiGame class")
@@ -191,12 +207,7 @@ class ShellmagotchiGame(QMainWindow):
             self.add_info(f"Take good care of {name}!")
             self.update_ui()
 
-            self.happiness_bar.setVisible(True)
-            self.happiness_label.setVisible(True)
-            self.life_stage_label.setVisible(True)
-            self.name_label.setVisible(True)
-            self.character_label.setVisible(True)
-            self.stats_frame.setVisible(True)
+            self.show_all_ui_elements()
             self.update_character_image()
             self.update_ui()
             

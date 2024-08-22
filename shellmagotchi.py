@@ -24,6 +24,15 @@ class Shellmagotchi(QObject):
 
         self.last_update_time = last_update_time or time.time()
 
+        # Check if gotchi died while game closed
+        elapsed_time = time.time() - self.last_update_time
+        if self.alive:
+            self.needs_decay(elapsed_time)
+            self.check_death()
+        if not self.alive:
+            self.zero_stats()
+            self.archive_gotchi
+
     def initialize_new(self, name):
         self.name = name
         self._hunger = 100
@@ -154,17 +163,6 @@ class Shellmagotchi(QObject):
             self.last_update_time = current_time
             save_game(self, self.last_update_time)
 
-## Scary changes
-#        if not self.alive:
-#            self.zero_stats() # Zero stats (lol comments)
-#        elif self.alive:
-#            current_time = time.time()
-#            elapsed_time = current_time - self.last_update_time
-#            self.needs_decay(elapsed_time)
-#            self.save_last_update_time()
-#            print(f"Current Needs -- Hunger: {self.hunger:.2f}, Thirst: {self.thirst:.2f}, Sleep: {self.sleep:.2f}, Hygiene: {self.hygiene:.2f}, Bladder: {self.bladder:.2f}, Socialize: {self.socialize:.2f}")
-#            print(f"# Debug: Alive - {self.alive}, Runaway - {self.runaway}, Dying - {self.dying}, Rebirthing - {self.rebirthing}")
-
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second
         decay_amount = decay_rate * elapsed_time
@@ -175,11 +173,7 @@ class Shellmagotchi(QObject):
         self.bladder = max(0, self.bladder - decay_amount)
         self.socialize = max(0, self.socialize - decay_amount)
 
-# Reduce Happiness Faster Based on Need Breakpoints
-# 75% < x = No lost happiness/Happy
-# 50% - 74 <= Slow Loss
-# 25% - 49% <= Fast Loss
-# 0% - 24% <= Near-instant loss
+# Reduce Happiness Faster Based on % of needs met Breakpoints
     def happiness_decay(self):
         if not self.alive:
             self.happiness == 0 # It's dead
