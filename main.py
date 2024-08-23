@@ -13,14 +13,10 @@ from game_window import ShellmagotchiGame
 # TODO: Balance the needs decay values
 # TODO: Flavor text, flavor text everywhere
 # TODO: Lifestages affect needs decay as well as flavor text - simple
-# TODO: MAYBE: Minigames like guess the number, guess the word, simple math problems, hide and seek, etc. Increases socialize stat
 # TODO: Debugging, optimizing, cleaning up code
 
 ## Medium priority
 # TODO: Implement cute movement animations to try and give the gotchi some life 
-# TODO: Rebirth names need to be title case
-# TODO: Ensure death life stage is updated in the UI upon death
-# TODO: If dead while program is closed they should stay dead
 
 def main_loop(game):
     if game.gotchi and game.gotchi.alive:

@@ -27,6 +27,7 @@ class ShellmagotchiGame(QMainWindow):
         self.animation = None
         self.last_animation_time = 0
         self.animation_cooldown = 10
+        self.current_animation = None
 
         if not self.gotchi:
             save_data, _ = load_game()
@@ -35,6 +36,8 @@ class ShellmagotchiGame(QMainWindow):
                 self.connect_gotchi_signals()
                 self.show_all_ui_elements()
                 self.update_ui()
+                if not self.gotchi.alive:
+                    self.add_info(f"{self.gotchi.name} is dead. Please enter 'rebirth' to continue.")
             else:
                 self.add_info("Woah! You found an egg!")
                 self.add_info("What would you like to name it?")
@@ -194,22 +197,21 @@ class ShellmagotchiGame(QMainWindow):
         if self.gotchi:
             if update_character_image:
                 self.update_character_image()
-            # if self.animation and self.animation.state() == QPropertyAnimation.Running:
-                # return # Skip updating UI while animation is running... easy fix
-            else:
-                for need, bar in self.progress_bars.items():
-                    value = getattr(self.gotchi, need)
-                    bar.setValue(value)
+            for need, bar in self.progress_bars.items():
+                value = getattr(self.gotchi, need)
+                bar.setValue(value)
 
-                self.happiness_bar.setValue(int(self.gotchi.happiness))
-                self.life_stage_label.setText(self.gotchi.life_stage.value)
-                self.name_label.setText(self.gotchi.name)
+            self.happiness_bar.setValue(int(self.gotchi.happiness))
+            self.life_stage_label.setText(self.gotchi.life_stage.value)
+            self.name_label.setText(self.gotchi.name)
 
-                self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
-                self.update_terminal()
-                self.central_widget.layout().update()
-                self.update_character_image()
-
+            self.character_label.setVisible(self.gotchi.alive and not self.gotchi.runaway) # Show gotchi image when alive
+            if not self.gotchi.alive:
+                self.character_label.setPixmap(QPixmap("assets/dead.png").scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            
+            self.update_character_image()
+            self.update_terminal()
+            self.central_widget.layout().update()
 
     def update_ui(self, update_character_image=True):
             self.updateUISignal.emit(update_character_image)
@@ -240,6 +242,7 @@ class ShellmagotchiGame(QMainWindow):
     def complete_rebirth(self, new_name):
         if new_name:
             delete_save()
+            new_name = new_name.title()
             new_gotchi = Shellmagotchi(new_name)
             self.gotchi = new_gotchi
             self.connect_gotchi_signals()
@@ -298,35 +301,43 @@ class ShellmagotchiGame(QMainWindow):
             return command
 
     def update_character_image(self):
-        ## if not self.animation or self.animation.state() is not QPropertyAnimation.Running:
-            if self.gotchi:
+            if self.gotchi and not self.current_animation:
                 image_path = f"assets/{self.gotchi.life_stage.value}.png"
                 pixmap = QPixmap(image_path)
-            if not pixmap.isNull(): ## and pixmap is not None:
-                self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-                
-                # Only animate if enough time has passed since last animation
-                animation_current_time = time.time() * 1000 # Convert to milliseconds
-                if animation_current_time - self.last_animation_time > self.animation_cooldown:
-                    self.animate_character()
-                    self.last_animation_time = animation_current_time       
+                if not pixmap.isNull(): ## and pixmap is not None:
+                    self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                    
+                    # Only animate if enough time has passed since last animation
+                    animation_current_time = time.time() * 1000 # Convert to milliseconds
+                    if animation_current_time - self.last_animation_time > self.animation_cooldown:
+                        self.animate_character()
+                        self.last_animation_time = animation_current_time       
             else:
                 print(f"Image not found: {image_path}")
         
     def animate_character(self):
         print("Attempting to animate character")
         if str(self.gotchi.life_stage.value).lower() == "egg":
-            self.animate_egg()
+            animation = self.animate_egg()
             print("sent egg animations")
         else:
             animation_type = random.choice(["move", "jump", "flip"])
             if animation_type == "move":
-                self.animate_move()
+                animation = self.animate_move()
             elif animation_type == "jump":
-                self.animate_jump()
+                animation = self.animate_jump()
             elif animation_type == "flip":
-                self.animate_flip()
+                animation = self.animate_flip()
             print("sent animation calls")
+
+        if animation:
+            animation.finished.connect(self.animation_finished)
+            self.current_animation = animation
+            print(f"Started {animation_type} animation")
+
+    def animation_finished(self):
+        print("Animation Finished")
+        self.current_animation = None
 
     def animate_egg(self):
         animation = QPropertyAnimation(self.character_label, b'pos')
@@ -338,8 +349,9 @@ class ShellmagotchiGame(QMainWindow):
         animation.setEndValue(start_pos)
         animation.setEasingCurve(QEasingCurve.InOutQuad)
         animation.start()
-        self.character_label.update()
-        print("Egg animation started")
+        return animation
+        # self.character_label.update()
+        # print("Egg animation started")
 
     def animate_move(self):
         print("move animation")
@@ -351,6 +363,7 @@ class ShellmagotchiGame(QMainWindow):
         animation.setEndValue(end_pos)
         animation.setEasingCurve(QEasingCurve.InOutQuad)
         animation.start()
+        return animation
 
     def animate_jump(self):
         print("jump animation")
@@ -362,6 +375,7 @@ class ShellmagotchiGame(QMainWindow):
         animation.setEndValue(start_pos)
         animation.setEasingCurve(QEasingCurve.OutInQuad)
         animation.start()
+        return animation
 
     def animate_flip(self):
         print("flip animation")
@@ -377,6 +391,7 @@ class ShellmagotchiGame(QMainWindow):
         animation.setEndValue(start_geometry)
         animation.setEasingCurve(QEasingCurve.InOutQuad)
         animation.start()
+        return animation
                                 
     def add_info(self, text):
         self.info_frame.append(text)

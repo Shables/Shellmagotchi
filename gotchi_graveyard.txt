@@ -42,3 +42,5 @@
 {'name': 'Roxxanne', 'age': 37.55025, 'life_stage': <LifeStage.ADULT: 'Adult'>, 'death_time': '2024-08-22 16:27:41'}
 {'name': 'Wobble', 'age': 33.593173, 'life_stage': <LifeStage.ADULT: 'Adult'>, 'death_time': '2024-08-22 18:04:54'}
 {'name': 'fred', 'age': 38.57171, 'life_stage': <LifeStage.ADULT: 'Adult'>, 'death_time': '2024-08-22 18:06:04'}
+{'name': 'Tawnia', 'age': 37.953347, 'life_stage': <LifeStage.DEAD: 'Dead'>, 'death_time': '2024-08-23 10:53:12'}
+{'name': 'Yes', 'age': 233.420875, 'life_stage': 'Dead', 'death_time': '2024-08-23 11:09:26'}

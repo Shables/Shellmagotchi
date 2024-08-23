@@ -35,8 +35,8 @@ class Shellmagotchi(QObject):
         self.last_update_time = last_update_time or time.time()
 
         # Check if gotchi died while game closed
-        elapsed_time = time.time() - self.last_update_time
         if self.alive:
+            elapsed_time = time.time() - self.last_update_time
             self.needs_decay(elapsed_time)
             self.check_death()
         if not self.alive:
@@ -258,11 +258,11 @@ class Shellmagotchi(QObject):
             if self.hunger <= 0 or self.thirst <= 0:
                 print(f"{self.name} has died!")
                 self.alive = False
+                self.life_stage = LifeStage.DEAD
                 self.archive_gotchi()
                 self.zero_stats()
                 self.died.emit()
                 print("A moment of silence...")
-                # time.sleep(5)
                 self.rebirth()
             else:
                 self.dying = False
@@ -282,7 +282,7 @@ class Shellmagotchi(QObject):
         data_to_archive = {
             "name": self.name,
             "age": self.age,
-            "life_stage": self.life_stage,
+            "life_stage": self.life_stage.value,
             "death_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         try:
