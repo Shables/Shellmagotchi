@@ -354,22 +354,22 @@ class Shellmagotchi(QObject):
         age_minutes = 60 # Debug
         age_days = 86400
         current_time = datetime.now()
-        self.age = (current_time - self.birth_time).total_seconds() / age_seconds # Age in minutes
+        self.age = (current_time - self.birth_time).total_seconds() / age_minutes # Age in minutes
         # Check if dead first, then runaway, then lifestage
         if self.alive == False:
             self.life_stage = LifeStage.DEAD
         elif self.runaway == True:
             self.life_stage = LifeStage.RUNAWAY
         else:    
-            if self.age < 11:
+            if self.age < 1:
                 self.life_stage = LifeStage.EGG
-            elif self.age < 22:
+            elif self.age < 30:
                 self.life_stage = LifeStage.CHILD
-            elif self.age < 33:
+            elif self.age < 90:
                 self.life_stage = LifeStage.TEEN
-            elif self.age < 44:
+            elif self.age < 180:
                 self.life_stage = LifeStage.ADULT
-            elif self.age < 55:
+            elif self.age < 360:
                 self.life_stage = LifeStage.MATURE
             else:
                 self.life_stage = LifeStage.ELDER

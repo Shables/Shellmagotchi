@@ -11,7 +11,6 @@ from game_window import ShellmagotchiGame
 
 # Low priority
 # TODO: Flavor text, flavor text everywhere
-# TODO: Lifestages affect needs decay as well as flavor text - simple
 # TODO: Debugging, optimizing, cleaning up code
 # TODO: Fix broken animation for "move"
 
