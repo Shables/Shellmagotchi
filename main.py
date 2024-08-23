@@ -10,13 +10,10 @@ from shellmagotchi import Shellmagotchi as SM
 from game_window import ShellmagotchiGame
 
 # Low priority
-# TODO: Balance the needs decay values
 # TODO: Flavor text, flavor text everywhere
 # TODO: Lifestages affect needs decay as well as flavor text - simple
 # TODO: Debugging, optimizing, cleaning up code
-
-## Medium priority
-# TODO: Implement cute movement animations to try and give the gotchi some life 
+# TODO: Fix broken animation for "move"
 
 def main_loop(game):
     if game.gotchi and game.gotchi.alive:

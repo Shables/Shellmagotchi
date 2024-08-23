@@ -6,7 +6,7 @@ from save_system import delete_save, load_game
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog,
                                QHBoxLayout, QFrame, QTextEdit, QLineEdit, QProgressBar, QGridLayout, QLabel)
 from PySide6.QtGui import QPixmap, QColor
-from PySide6.QtCore import Qt, QTimer, Signal, QObject, Slot, QRect, QPropertyAnimation, QPoint, QEasingCurve
+from PySide6.QtCore import Qt, QTimer, Signal, Property, QObject, Slot, QRect, QPropertyAnimation, QPoint, QEasingCurve
 from shellmagotchi import Shellmagotchi
 
 font_family = "Arial"
@@ -20,14 +20,16 @@ class ShellmagotchiGame(QMainWindow):
     def __init__(self, gotchi=None, debug=False):
         super().__init__()
         self.gotchi = gotchi
-        self.init_ui()
-        self.updateUISignal.connect(self._update_ui) # maybe self._update_ui
         self.waiting_for_rebirth_name = False
         self.debug = debug
         self.animation = None
         self.last_animation_time = 0
         self.animation_cooldown = 10
         self.current_animation = None
+
+        self.init_ui()
+
+        self.updateUISignal.connect(self._update_ui) # maybe self._update_ui
 
         if not self.gotchi:
             save_data, _ = load_game()
@@ -48,6 +50,116 @@ class ShellmagotchiGame(QMainWindow):
             self.animation_timer = QTimer()
             self.animation_timer.timeout.connect(self.update_character_image)
             self.animation_timer.start(1000)
+
+    def init_ui(self):
+        self.setWindowTitle("Shellmagotchi!")
+        self.setGeometry(100, 100, 800, 800)
+
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        self.layout = QVBoxLayout(self.central_widget)
+
+        # Character display
+        self.character_frame = QFrame()
+        self.character_frame.setFrameShape(QFrame.Box)
+        self.character_frame.setFixedSize(800, 200)
+
+        self.character_container = QWidget(self.character_frame)
+        self.character_container.setFixedSize(800, 200)
+
+        self.character_label = QLabel(self.character_container)
+        self.character_label.setAlignment(Qt.AlignCenter)
+
+        self.life_stage_label = QLabel()
+        self.life_stage_label.setStyleSheet("color: grey;")
+        self.life_stage_label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
+        self.life_stage_label.setVisible(False)
+
+        self.name_label = QLabel()
+        self.name_label.setStyleSheet("color: grey;")
+        self.name_label.setAlignment(Qt.AlignBottom | Qt.AlignLeft)
+        self.name_label.setVisible(False)
+
+        self.character_layout = QGridLayout(self.character_container)
+        self.character_layout.addWidget(self.character_label, 0, 0, 2, 1, alignment=Qt.AlignCenter)
+        self.character_layout.addWidget(self.life_stage_label, 1, 0, alignment=Qt.AlignBottom | Qt.AlignRight)
+        self.character_layout.addWidget(self.name_label, 1, 0, alignment=Qt.AlignBottom | Qt.AlignLeft)
+
+        self.layout.addWidget(self.character_frame)
+
+        # Needs bars
+        self.stats_frame = QFrame()
+        self.stats_layout = QGridLayout(self.stats_frame)
+        self.progress_bars = {}
+        needs = ['hunger', 'thirst', 'sleep', 'hygiene', 'bladder', 'socialize']
+        bar_colors = [color_red, QColor(0, 255, 0), QColor(0, 0, 255), QColor(255, 255, 0), QColor(255, 165, 0), QColor(255, 192, 203)]
+
+        for i, need in enumerate(needs):
+            label = QLabel(f"{need.capitalize()}:")
+            progress_bar = QProgressBar()
+            progress_bar.setTextVisible(True)
+            progress_bar.setFixedWidth(200)
+            progress_bar.setStyleSheet(f"""
+                QProgressBar {{
+                    border: 2px solid grey;
+                    border-radius: 5px;
+                    text-align: center;
+                    color: black;
+                    font-family: '{font_family}';
+                    font-size: {font_size}px;
+                }}
+                QProgressBar::chunk {{
+                    background-color: {bar_colors[i].name()};
+                    width: 20px;
+                }}
+            """)
+
+            self.progress_bars[need] = progress_bar
+
+            row = i // 3
+            col = i % 3
+            self.stats_layout.addWidget(label, row, col * 2)
+            self.stats_layout.addWidget(progress_bar, row, col * 2 + 1)
+
+        # Happiness Display
+        self.happiness_label = QLabel("Happiness:")
+        self.happiness_label.setVisible(False)
+        self.happiness_bar = QProgressBar()
+        self.happiness_bar.setTextVisible(True)
+        self.happiness_bar.setStyleSheet(f"""
+                QProgressBar {{
+                    border: 2px solid grey;
+                    border-radius: 5px;
+                    text-align: center;
+                    color: black;
+                    font-family: '{font_family}';
+                    font-size: {font_size}px;
+                }}
+                QProgressBar::chunk {{
+                    background-color: #800080;
+                    width: 20px;
+                }}
+            """)
+
+        self.layout.addWidget(self.happiness_label, alignment=Qt.AlignCenter)
+        self.layout.addWidget(self.happiness_bar)
+        self.layout.addWidget(self.stats_frame)
+
+        # Game information terminal
+        self.info_frame = QTextEdit()
+        self.info_frame.setReadOnly(True)
+        self.layout.addWidget(self.info_frame, stretch=4)
+
+        self.input_box = QLineEdit()
+        self.input_box.setPlaceholderText("Enter command...")
+        self.input_box.returnPressed.connect(self.process_command)
+        self.layout.addWidget(self.input_box)
+
+        # Hide character image and stats at start
+        self.character_label.setVisible(False)
+        self.stats_frame.setVisible(False)
+        self.happiness_bar.setVisible(False)
+        self.happiness_label.setVisible(False)
 
 
     def show_all_ui_elements(self):
@@ -71,126 +183,7 @@ class ShellmagotchiGame(QMainWindow):
                 self.gotchi.died.disconnect(self.update_ui)
             except TypeError:
                 print("Warning: Failed to disconnect a signal, likely none connected")
-    # GUI
-    def init_ui(self):
-        self.setWindowTitle("Tamagotchi Game")
-        self.setGeometry(100, 100, 800, 800)
-
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
-        self.layout = QVBoxLayout(self.central_widget)
-
-        # Top 2/7: Character display
-        self.character_frame = QFrame()
-        self.character_frame.setFrameShape(QFrame.Box)
-        self.character_frame.setFixedSize(800, 200)
-
-        self.character_container = QWidget(self.character_frame)
-        self.character_container.setFixedSize(800, 200)
-        
-        self.character_label = QLabel(self.character_container)
-        self.character_label.setAlignment(Qt.AlignCenter)
-
-        self.character_layout = QGridLayout(self.character_container)
-        self.character_layout.addWidget(self.character_label, 0, 0, 2, 1, alignment=Qt.AlignCenter)
-
-        self.layout.addWidget(self.character_frame, alignment=Qt.AlignCenter)
-
-        # Display life stage, after initialized
-        self.life_stage_label = QLabel()
-        self.life_stage_label.setStyleSheet("color: grey;")
-        self.life_stage_label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
-        self.character_layout.addWidget(self.life_stage_label, 1, 0, alignment=Qt.AlignBottom | Qt.AlignRight)
-        self.life_stage_label.setVisible(False)
-
-        # Display name, after initialized
-        self.name_label = QLabel()
-        self.name_label.setStyleSheet("color: grey;")
-        self.name_label.setAlignment(Qt.AlignBottom | Qt.AlignLeft)
-        self.character_layout.addWidget(self.name_label, 1, 0, alignment=Qt.AlignBottom | Qt.AlignLeft)
-        self.name_label.setVisible(False)
-
-        self.layout.addWidget(self.character_frame)
-
-        # Middle 1/7: Needs bars
-        self.stats_frame = QFrame()
-        self.stats_layout = QGridLayout(self.stats_frame)
-        self.progress_bars = {}
-        needs = ['hunger', 'thirst', 'sleep', 'hygiene', 'bladder', 'socialize']
-        bar_colors = [color_red, QColor(0, 255, 0), QColor(0, 0, 255), QColor(255, 255, 0), QColor(255, 165, 0), QColor(255, 192, 203)]
-        
-        for i, need in enumerate(needs):
-            label = QLabel(f"{need.capitalize()}:")
-            progress_bar = QProgressBar()
-            progress_bar.setTextVisible(True)
-            progress_bar.setFixedWidth(200)
-            # progress_bar.setStyleSheet(f"QProgressBar::chunk {{background-color: {bar_colors[i].name()}; }}")
-
-            progress_bar.setStyleSheet(f"""
-                QProgressBar {{
-                    border: 2px solid grey;
-                    border-radius: 5px;
-                    text-align: center;
-                    color: black;  /* Set the text color */
-                    font-family: '{font_family}';  /* Set the font family */
-                    font-size: {font_size}px;  /* Set the font size */
-                }}
-                QProgressBar::chunk {{
-                    background-color: {bar_colors[i].name()};
-                    width: 20px;  /* Chunk size */
-                }}
-            """)
-
-            self.progress_bars[need] = progress_bar
-
-            row = i // 3
-            col = i % 3
-            self.stats_layout.addWidget(label, row, col * 2)
-            self.stats_layout.addWidget(progress_bar, row, col * 2 + 1)
-       
-        # Happiness Display
-        self.happiness_label = QLabel("Happiness:")
-        self.happiness_label.setVisible(False)
-        self.happiness_bar = QProgressBar()
-        self.happiness_bar.setTextVisible(True)
-        # self.happiness_bar.setStyleSheet("QProgressBar::chunk {background-color: #FFFF00; }") # Yellow?
-        self.happiness_bar.setStyleSheet(f"""
-                QProgressBar {{
-                    border: 2px solid grey;
-                    border-radius: 5px;
-                    text-align: center;
-                    color: black;  /* Set the text color */
-                    font-family: '{font_family}';  /* Set the font family */
-                    font-size: {font_size}px;  /* Set the font size */
-                }}
-                QProgressBar::chunk {{
-                    background-color: #800080; /* Purple Color*/
-                    width: 20px;  /* Chunk size */
-                }}
-            """)
-
-
-        self.layout.addWidget(self.happiness_label, alignment=Qt.AlignCenter)
-        self.layout.addWidget(self.happiness_bar)
-        self.layout.addWidget(self.stats_frame)
-
-        # Bottom 4/7: Game information
-        self.info_frame = QTextEdit()
-        self.info_frame.setReadOnly(True)
-        self.layout.addWidget(self.info_frame, stretch=4)
-
-        # Input box at the very bottom
-        self.input_box = QLineEdit()
-        self.input_box.setPlaceholderText("Enter command...")
-        self.input_box.returnPressed.connect(self.process_command)
-        self.layout.addWidget(self.input_box)
-        
-        # Hide the character image and stats at start
-        self.character_label.setVisible(False)
-        self.stats_frame.setVisible(False)
-        self.happiness_bar.setVisible(False)
-        self.happiness_label.setVisible(False)
-
+ 
     def _update_ui(self, update_character_image=True):
         if self.debug:
             print("update_ui() called from ShellmagotchiGame class")
@@ -304,30 +297,40 @@ class ShellmagotchiGame(QMainWindow):
             if self.gotchi and not self.current_animation:
                 image_path = f"assets/{self.gotchi.life_stage.value}.png"
                 pixmap = QPixmap(image_path)
-                if not pixmap.isNull(): ## and pixmap is not None:
-                    self.character_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                if not pixmap.isNull():
+                    scaled_pixmap = pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    self.character_label.setPixmap(scaled_pixmap)
                     
+                    # Center the character label
+                    self.character_label.setGeometry(
+                        (self.character_container.width() - scaled_pixmap.width()) // 2,
+                        (self.character_container.height() - scaled_pixmap.height()) // 2,
+                        scaled_pixmap.width(),
+                        scaled_pixmap.height()
+                    )
+
                     # Only animate if enough time has passed since last animation
                     animation_current_time = time.time() * 1000 # Convert to milliseconds
                     if animation_current_time - self.last_animation_time > self.animation_cooldown:
                         self.animate_character()
                         self.last_animation_time = animation_current_time       
-            else:
-                print(f"Image not found: {image_path}")
-        
+                else:
+                    print(f"Image not found: {image_path}")
+            
     def animate_character(self):
         print("Attempting to animate character")
         if str(self.gotchi.life_stage.value).lower() == "egg":
             animation = self.animate_egg()
-            print("sent egg animations")
+            animation_type = "egg"
         else:
-            animation_type = random.choice(["move", "jump", "flip"])
-            if animation_type == "move":
-                animation = self.animate_move()
-            elif animation_type == "jump":
+            animation_type = random.choice(["jump"]) # Cut "flip"/"move" and out... 
+            # until I can figure out how to actually implement it
+            # if animation_type == "move":
+            #     animation = self.animate_move()
+            if animation_type == "jump":
                 animation = self.animate_jump()
-            elif animation_type == "flip":
-                animation = self.animate_flip()
+            # elif animation_type == "flip":
+            #    animation = self.animate_flip()
             print("sent animation calls")
 
         if animation:
@@ -343,55 +346,80 @@ class ShellmagotchiGame(QMainWindow):
         animation = QPropertyAnimation(self.character_label, b'pos')
         animation.setDuration(1500) # 5 seconds
         start_pos = self.character_label.pos()
-        animation.setStartValue(start_pos)
-        animation.setKeyValueAt(0.25, start_pos + QPoint(20, 0))
-        animation.setKeyValueAt(0.75, start_pos + QPoint(-20, 0))
-        animation.setEndValue(start_pos)
-        animation.setEasingCurve(QEasingCurve.InOutQuad)
-        animation.start()
-        return animation
-        # self.character_label.update()
-        # print("Egg animation started")
 
-    def animate_move(self):
-        print("move animation")
-        animation = QPropertyAnimation(self.character_label, b'pos')
-        animation.setDuration(1500)
-        start_pos = self.character_label.pos()
-        end_pos = start_pos + QPoint(random.choice([-50, 50]), 0)
-        animation.setStartValue(start_pos)
-        animation.setEndValue(end_pos)
+        # Calculate center position
+        center_x = (self.character_container.width() - self.character_label.width()) // 2
+        center_y = (self.character_container.height() - self.character_label.height()) // 2
+        center_pos = QPoint(center_x, center_y)
+
+        animation.setStartValue(center_pos)
+        animation.setKeyValueAt(0.25, center_pos + QPoint(20, 0))
+        animation.setKeyValueAt(0.75, center_pos + QPoint(-20, 0))
+        animation.setEndValue(center_pos)
         animation.setEasingCurve(QEasingCurve.InOutQuad)
         animation.start()
+        print("Egg animation started")
         return animation
+
+
+    # def animate_move(self):
+    #     print("move animation")
+    #     animation = QPropertyAnimation(self.character_label, b'pos')
+    #     animation.setDuration(1500)
+    #     start_pos = self.character_label.pos()
+
+    #     center_x = (self.character_container.width() - self.character_label.width()) // 2
+    #     center_y = (self.character_container.width() - self.character_label.height()) // 2
+    #     center_pos = QPoint(center_x, center_y)
+
+    #     max_movement = min(50, (self.character_container.width() - self.character_label.width()) // 2)
+        
+    #     # Either moves left or right
+    #     direction = random.choice([-1, 1])
+    #     end_pos = center_pos + QPoint(direction * max_movement, 0)
+        
+    #     # Smooth movement with intermediate keyframes
+    #     animation.setStartValue(center_pos)
+    #     animation.setKeyValueAt(0.25, center_pos + QPoint(direction * max_movement // 2, 0))
+    #     animation.setKeyValueAt(0.75, end_pos)
+    #     animation.setEndValue(center_pos)
+        
+    #     animation.setEasingCurve(QEasingCurve.InOutQuad)
+    #     animation.start()
+    #     return animation
 
     def animate_jump(self):
         print("jump animation")
         animation = QPropertyAnimation(self.character_label, b'pos')
         animation.setDuration(1500)
         start_pos = self.character_label.pos()
-        animation.setStartValue(start_pos)
-        animation.setKeyValueAt(0.5, start_pos + QPoint(0, -40))
-        animation.setEndValue(start_pos)
+
+        center_x = (self.character_container.width() - self.character_label.width()) // 2
+        center_y = (self.character_container.height() - self.character_label.height()) // 2
+        center_pos = QPoint(center_x, center_y)
+
+        animation.setStartValue(center_pos)
+        animation.setKeyValueAt(0.5, center_pos + QPoint(0, -40))
+        animation.setEndValue(center_pos)
         animation.setEasingCurve(QEasingCurve.OutInQuad)
         animation.start()
         return animation
 
-    def animate_flip(self):
-        print("flip animation")
-        animation = QPropertyAnimation(self.character_label, b'geometry')
-        animation.setDuration(1500)
-        start_geometry = self.character_label.geometry()
-        animation.setStartValue(start_geometry)
-
-        mid_geometry = QRect(start_geometry.x() + start_geometry.width() / 2,
-                             start_geometry.y(), 1, start_geometry.height())
-
-        animation.setKeyValueAt(0.5, mid_geometry)
-        animation.setEndValue(start_geometry)
-        animation.setEasingCurve(QEasingCurve.InOutQuad)
-        animation.start()
-        return animation
+#    def animate_flip(self):
+#        print("flip animation")
+#        animation = QPropertyAnimation(self.character_label, b'geometry')
+#        animation.setDuration(1500)
+#        start_geometry = self.character_label.geometry()
+#        animation.setStartValue(start_geometry)
+#
+#        mid_geometry = QRect(start_geometry.x() + start_geometry.width() / 2,
+#                             start_geometry.y(), 1, start_geometry.height())
+#
+#        animation.setKeyValueAt(0.5, mid_geometry)
+#        animation.setEndValue(start_geometry)
+#        animation.setEasingCurve(QEasingCurve.InOutQuad)
+#        animation.start()
+#        return animation
                                 
     def add_info(self, text):
         self.info_frame.append(text)

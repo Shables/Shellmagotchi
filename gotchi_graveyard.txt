@@ -44,3 +44,4 @@
 {'name': 'fred', 'age': 38.57171, 'life_stage': <LifeStage.ADULT: 'Adult'>, 'death_time': '2024-08-22 18:06:04'}
 {'name': 'Tawnia', 'age': 37.953347, 'life_stage': <LifeStage.DEAD: 'Dead'>, 'death_time': '2024-08-23 10:53:12'}
 {'name': 'Yes', 'age': 233.420875, 'life_stage': 'Dead', 'death_time': '2024-08-23 11:09:26'}
+{'name': 'Moves', 'age': 37.691932, 'life_stage': 'Dead', 'death_time': '2024-08-23 12:15:19'}

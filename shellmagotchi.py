@@ -19,6 +19,57 @@ class LifeStage(Enum):
     DEAD = "Dead"
     RUNAWAY = "Runaway"
 
+need_weights = {
+    LifeStage.EGG: {
+        "hunger": 0.1,
+        "thirst": 0.1,
+        "sleep": 0.1,
+        "hygiene": 0.1,
+        "bladder": 0.1,
+        "socialize": 0.1
+    },
+    LifeStage.CHILD: {
+        "hunger": 1.0,
+        "thirst": 1.0,
+        "sleep": 1.2,
+        "hygiene": 0.8,
+        "bladder": 1.2,
+        "socialize": 1.0
+    },
+    LifeStage.TEEN: {
+        "hunger": 1.2,
+        "thirst": 1.0,
+        "sleep": 1.0,
+        "hygiene": 0.8,
+        "bladder": 1.0,
+        "socialize": 1.2
+    },
+    LifeStage.ADULT: {
+        "hunger": 1.0,
+        "thirst": 1.2,
+        "sleep": 1.0,
+        "hygiene": 1.2,
+        "bladder": 1.0,
+        "socialize": 0.8
+    },
+    LifeStage.MATURE: {
+        "hunger": 0.8,
+        "thirst": 1.2,
+        "sleep": 1.2,
+        "hygiene": 1.0,
+        "bladder": 1.2,
+        "socialize": 1.0
+    },
+    LifeStage.ELDER: {
+        "hunger": 0.6,
+        "thirst": 0.8,
+        "sleep": 1.5,
+        "hygiene": 0.8,
+        "bladder": 1.5,
+        "socialize": 1.5
+    }
+}
+
 class Shellmagotchi(QObject):
     rebirthRequested = Signal()
     died = Signal()
@@ -37,7 +88,7 @@ class Shellmagotchi(QObject):
         # Check if gotchi died while game closed
         if self.alive:
             elapsed_time = time.time() - self.last_update_time
-            self.needs_decay(elapsed_time)
+            self.needs_decay(elapsed_time * 0.01) # 1% of needs decay while offline
             self.check_death()
         if not self.alive:
             self.zero_stats()
@@ -176,12 +227,16 @@ class Shellmagotchi(QObject):
     def needs_decay(self, elapsed_time):
         decay_rate = 1 # points per second
         decay_amount = decay_rate * elapsed_time
-        self.hunger = max(0, self.hunger - decay_amount)
-        self.thirst = max(0, self.thirst - (decay_amount * 3)) # Faster for death debugging
-        self.sleep = max(0, self.sleep - decay_amount)
-        self.hygiene = max(0, self.hygiene - decay_amount)
-        self.bladder = max(0, self.bladder - decay_amount)
-        self.socialize = max(0, self.socialize - decay_amount)
+
+        weights = need_weights.get(self.life_stage, {})
+
+        # Needs decay based on weights based on LifeStage
+        self.hunger = max(0, self.hunger - (decay_amount * 0.01 * weights.get("hunger", 1.0)))
+        self.thirst = max(0, self.thirst - (decay_amount * 0.02 * weights.get("thirst", 1.0)))
+        self.sleep = max(0, self.sleep - (decay_amount * 0.035 * weights.get("sleep", 1.0)))
+        self.hygiene = max(0, self.hygiene - (decay_amount * 0.015 * weights.get("hygiene", 1.0)))
+        self.bladder = max(0, self.bladder - (decay_amount * 0.04 * weights.get("bladder", 1.0)))
+        self.socialize = max(0, self.socialize - (decay_amount * 0.025 * weights.get("socialize", 1.0)))
 
 # Reduce Happiness Faster Based on % of needs met Breakpoints
     def happiness_decay(self):
