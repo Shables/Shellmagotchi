@@ -1,0 +1,18 @@
+{
+  "name": "Fred",
+  "birth_time": "2024-08-23T13:27:42.208752",
+  "last_update_time": 1724446238.8375785,
+  "hunger": 99.51403446087599,
+  "thirst": 99.02806892175198,
+  "sleep": 99.94670662693615,
+  "hygiene": 99.13637197108386,
+  "bladder": 99.081950430784204,
+  "socialize": 99.28508615218996,
+  "happiness": 100.0,
+  "life_stage": "Child",
+  "alive": true,
+  "runaway": false,
+  "dying": false,
+  "rebirthing": false,
+  "rebirth_signal_sent": false
+}

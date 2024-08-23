@@ -11,7 +11,7 @@ from game_window import ShellmagotchiGame
 
 # Low priority
 # TODO: Egg hatching animation
-# TODO: Debugging, optimizing, cleaning up code
+# TODO: Debugging, optimizing, cleaning up code, logging
 # TODO: Fix broken animation for "move"
 
 def main_loop(game):
@@ -25,8 +25,8 @@ def main_loop(game):
 
         # Flavor text messages for info_frame
         if random.randint(1, 10) == 1:
-            game.gotchi.display_life_stage_flavor_text()
-        game.gotchi.display_need_based_messages()
+            game.last_flavor_text = game.gotchi.display_life_stage_flavor_text(game.last_flavor_text)
+        game.last_need_message = game.gotchi.display_need_based_messages(game.last_need_message)
 
         game.update_ui(update_character_image=False)
         print("Main looped")

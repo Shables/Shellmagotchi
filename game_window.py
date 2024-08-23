@@ -19,6 +19,8 @@ class ShellmagotchiGame(QMainWindow):
 
     def __init__(self, gotchi=None, debug=False):
         super().__init__()
+        self.last_flavor_text = ""
+        self.last_need_message = ""
         self.gotchi = gotchi
         self.waiting_for_rebirth_name = False
         self.debug = debug
@@ -26,6 +28,7 @@ class ShellmagotchiGame(QMainWindow):
         self.last_animation_time = 0
         self.animation_cooldown = 10
         self.current_animation = None
+
 
         self.init_ui()
 
@@ -433,7 +436,12 @@ class ShellmagotchiGame(QMainWindow):
             # self.add_info(info)
             
             # Flavor Text, and needs-messages
-            if self.gotchi.flavor_text:
-                self.add_info(self.gotchi.flavor_text)
-            if self.gotchi.need_message:
-                self.add_info(self.gotchi.need_message)
+            if hasattr(self.gotchi, 'flavor_text'):
+                if self.gotchi.flavor_text and self.gotchi.flavor_text != self.last_flavor_text:
+                    self.add_info(self.gotchi.flavor_text)
+                    self.last_flavor_text = self.gotchi.flavor_text
+                if self.gotchi.need_message and self.gotchi.need_message != self.last_need_message:
+                    self.add_info(self.gotchi.need_message)
+                    self.last_need_message = self.gotchi.need_message
+            else:
+                print("flavor_text is not set.")

@@ -112,6 +112,9 @@ class Shellmagotchi(QObject):
         self.dying = False
         self.rebirthing = False
         self.rebirth_signal_sent = False
+        self.flavor_text = ''
+        self.need_message = ''
+
 
     def load_from_save(self, save_data):
         self.name = save_data["name"]
@@ -375,9 +378,9 @@ class Shellmagotchi(QObject):
                 self.life_stage = LifeStage.ELDER
 
 # Flavor text based on lifestage
-    def display_life_stage_flavor_text(self):
+    def display_life_stage_flavor_text(self, last_flavor_text):
         flavor_texts = {
-            LifeStage.EGG: ["The egg wiggles slightly.", "A soft tapping soudn can be heard from the egg", "Soft sounds can be heard from the egg", "You can feel the egg vibrating from inside"],
+            LifeStage.EGG: ["The egg wiggles slightly.", "A soft tapping sound can be heard from the egg", "Soft sounds can be heard from the egg", "You can feel the egg vibrating from inside"],
             LifeStage.CHILD: [f"{self.name} is giggling happily to themselves.", f"{self.name} is courageously exploring their surroundings", f"A mischevious grin spreads across {self.name}'s face."],
             LifeStage.TEEN: [f"{self.name} is trying to do some dance moves.", f"You look over at {self.name} and see them trying to act cool.", f"{self.name} is singing some pop punk song to themselves"],
             LifeStage.ADULT: [f"{self.name} begins contemplating their lot in life.", f"You look over and see {self.name} balancing their checkbook.", f"{self.name} starts tidying up their surroundings."],
@@ -385,11 +388,16 @@ class Shellmagotchi(QObject):
             LifeStage.ELDER: [f"{self.name} moves slowly around the room, bones creaking, wheezing.", f"You notice {self.name} not moving... Nevermind, they were just sleeping.", f"{self.name} calls for you to bring them their pills."]
         }
         if self.life_stage in flavor_texts:
-            self.flavor_text = random.choice(flavor_texts[self.life_stage])
+            new_flavor_text = random.choice(flavor_texts[self.life_stage])
+            if new_flavor_text != last_flavor_text:
+                self.flavor_text = new_flavor_text
+            else:
+                self.flavor_text = ''
         else:
             self.flavor_text = ''
+        return self.flavor_text
 
-    def display_need_based_messages(self):
+    def display_need_based_messages(self, last_need_message):
         messages = []
         if self.hunger < 50:
             messages.append(f"{self.name}'s tummy starts tumbling... Maybe 'feed' them?")
@@ -405,9 +413,15 @@ class Shellmagotchi(QObject):
             messages.append(f"{self.name}'s so lonely and bored... Maybe 'play' with them?")
 
         if messages:
-            self.need_message = random.choice(messages)
+            new_need_message = random.choice(messages)
+            if new_need_message != last_need_message:
+                self.need_message = new_need_message
+            else:
+                self.need_message = ''
         else:
             self.need_message = ''
+        return self.need_message
+        
 
 # Save/Load current time to seperate file to track needs decay while user away
     def save_last_update_time(self):
