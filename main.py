@@ -10,7 +10,7 @@ from shellmagotchi import Shellmagotchi as SM
 from game_window import ShellmagotchiGame
 
 # Low priority
-# TODO: Flavor text, flavor text everywhere
+# TODO: Egg hatching animation
 # TODO: Debugging, optimizing, cleaning up code
 # TODO: Fix broken animation for "move"
 
@@ -22,7 +22,13 @@ def main_loop(game):
         game.gotchi.check_runaway()
         game.gotchi.check_death()
         game.gotchi.update_life_stage()
-        game.update_ui(update_character_image=False) # Animations are run seperate to avoid overwrite
+
+        # Flavor text messages for info_frame
+        if random.randint(1, 10) == 1:
+            game.gotchi.display_life_stage_flavor_text()
+        game.gotchi.display_need_based_messages()
+
+        game.update_ui(update_character_image=False)
         print("Main looped")
 
 if __name__ == '__main__':

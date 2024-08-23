@@ -426,9 +426,14 @@ class ShellmagotchiGame(QMainWindow):
         
     def update_terminal(self): 
         if self.gotchi:    
-            info = f"Current Needs -- Hunger: {self.gotchi.hunger:.2f}, Thirst: {self.gotchi.thirst:.2f}, "
-            info += f"Sleep: {self.gotchi.sleep:.2f}, Hygiene: {self.gotchi.hygiene:.2f}, "
-            info += f"Bladder: {self.gotchi.bladder:.2f}, Socialize: {self.gotchi.socialize:.2f}"
+            # info = f"Current Needs -- Hunger: {self.gotchi.hunger:.2f}, Thirst: {self.gotchi.thirst:.2f}, "
+            # info += f"Sleep: {self.gotchi.sleep:.2f}, Hygiene: {self.gotchi.hygiene:.2f}, "
+            # info += f"Bladder: {self.gotchi.bladder:.2f}, Socialize: {self.gotchi.socialize:.2f}"
 
-            self.add_info(info)
-
+            # self.add_info(info)
+            
+            # Flavor Text, and needs-messages
+            if self.gotchi.flavor_text:
+                self.add_info(self.gotchi.flavor_text)
+            if self.gotchi.need_message:
+                self.add_info(self.gotchi.need_message)

@@ -374,6 +374,41 @@ class Shellmagotchi(QObject):
             else:
                 self.life_stage = LifeStage.ELDER
 
+# Flavor text based on lifestage
+    def display_life_stage_flavor_text(self):
+        flavor_texts = {
+            LifeStage.EGG: ["The egg wiggles slightly.", "A soft tapping soudn can be heard from the egg", "Soft sounds can be heard from the egg", "You can feel the egg vibrating from inside"],
+            LifeStage.CHILD: [f"{self.name} is giggling happily to themselves.", f"{self.name} is courageously exploring their surroundings", f"A mischevious grin spreads across {self.name}'s face."],
+            LifeStage.TEEN: [f"{self.name} is trying to do some dance moves.", f"You look over at {self.name} and see them trying to act cool.", f"{self.name} is singing some pop punk song to themselves"],
+            LifeStage.ADULT: [f"{self.name} begins contemplating their lot in life.", f"You look over and see {self.name} balancing their checkbook.", f"{self.name} starts tidying up their surroundings."],
+            LifeStage.MATURE: [f"You see {self.name} grumbling to themselves about aches and pains.", f"{self.name} is looking for a comfy place to sit.", f"You hear {self.name} yelling at some kids for playing ball in the street."],
+            LifeStage.ELDER: [f"{self.name} moves slowly around the room, bones creaking, wheezing.", f"You notice {self.name} not moving... Nevermind, they were just sleeping.", f"{self.name} calls for you to bring them their pills."]
+        }
+        if self.life_stage in flavor_texts:
+            self.flavor_text = random.choice(flavor_texts[self.life_stage])
+        else:
+            self.flavor_text = ''
+
+    def display_need_based_messages(self):
+        messages = []
+        if self.hunger < 50:
+            messages.append(f"{self.name}'s tummy starts tumbling... Maybe 'feed' them?")
+        if self.thirst < 50:
+            messages.append(f"{self.name}'s lips look parched... maybe 'water' them?")
+        if self.sleep < 50:
+            messages.append(f"{self.name}'s eyes look tired... Maybe 'tuckin' them?")
+        if self.bladder < 50:
+            messages.append(f"{self.name}'s does the potty dance... Maybe 'potty' them?")
+        if self.hygiene < 50:
+            messages.append(f"{self.name}'s smells disgusting... Maybe 'bathe' them?")
+        if self.socialize < 50:
+            messages.append(f"{self.name}'s so lonely and bored... Maybe 'play' with them?")
+
+        if messages:
+            self.need_message = random.choice(messages)
+        else:
+            self.need_message = ''
+
 # Save/Load current time to seperate file to track needs decay while user away
     def save_last_update_time(self):
         self.last_update_time = time.time()
