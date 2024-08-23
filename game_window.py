@@ -92,17 +92,7 @@ class ShellmagotchiGame(QMainWindow):
         self.character_layout.addWidget(self.character_label, 0, 0, 2, 1, alignment=Qt.AlignCenter)
 
         self.layout.addWidget(self.character_frame, alignment=Qt.AlignCenter)
-        # Scary Scary Changes aa0
-        # self.character_layout = QGridLayout(self.character_frame) # Moved from scary changes
-        # self.character_label = QLabel(self.character_frame)
-        # self.character_label.setAlignment(Qt.AlignCenter)
-        # self.character_layout.addWidget(self.character_label, 0, 0, alignment=Qt.AlignCenter)
 
-        # Scary Changes aa0
-    
-        #self.character_label = QLabel()
-        #self.character_layout.addWidget(self.character_label, 0, 0, 2, 1, alignment=Qt.AlignCenter)
-       
         # Display life stage, after initialized
         self.life_stage_label = QLabel()
         self.life_stage_label.setStyleSheet("color: grey;")
