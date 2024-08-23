@@ -40,3 +40,5 @@
 {'name': 'Tests', 'age': 30.748817, 'life_stage': <LifeStage.TEEN: 'Teen'>, 'death_time': '2024-08-22 16:25:47'}
 {'name': 'Scary', 'age': 38.517642, 'life_stage': <LifeStage.ADULT: 'Adult'>, 'death_time': '2024-08-22 16:26:39'}
 {'name': 'Roxxanne', 'age': 37.55025, 'life_stage': <LifeStage.ADULT: 'Adult'>, 'death_time': '2024-08-22 16:27:41'}
+{'name': 'Wobble', 'age': 33.593173, 'life_stage': <LifeStage.ADULT: 'Adult'>, 'death_time': '2024-08-22 18:04:54'}
+{'name': 'fred', 'age': 38.57171, 'life_stage': <LifeStage.ADULT: 'Adult'>, 'death_time': '2024-08-22 18:06:04'}
