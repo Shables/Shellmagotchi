@@ -114,6 +114,8 @@ class Shellmagotchi(QObject):
         self.rebirth_signal_sent = False
         self.flavor_text = ''
         self.need_message = ''
+        self.last_flavor_text = ''
+        self.last_need_message = ''
 
 
     def load_from_save(self, save_data):
@@ -392,9 +394,11 @@ class Shellmagotchi(QObject):
             if new_flavor_text != last_flavor_text:
                 self.flavor_text = new_flavor_text
             else:
-                self.flavor_text = ''
+                remaining_texts = [text for text in flavor_texts[self.life_stage] if text != last_flavor_text]
+                self.flavor_text = random.choice(remaining_texts) if remaining_texts else new_flavor_text
         else:
             self.flavor_text = ''
+
         return self.flavor_text
 
     def display_need_based_messages(self, last_need_message):

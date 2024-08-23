@@ -426,22 +426,28 @@ class ShellmagotchiGame(QMainWindow):
                                 
     def add_info(self, text):
         self.info_frame.append(text)
+        self.info_frame.ensureCursorVisible()
+        QApplication.processEvents()
+        self.info_frame.update()
+        self.info_frame.repaint()
+        self.info_frame.viewport().update()
+        print(f" text added to info_frame: {text}")
         
     def update_terminal(self): 
-        if self.gotchi:    
-            # info = f"Current Needs -- Hunger: {self.gotchi.hunger:.2f}, Thirst: {self.gotchi.thirst:.2f}, "
-            # info += f"Sleep: {self.gotchi.sleep:.2f}, Hygiene: {self.gotchi.hygiene:.2f}, "
-            # info += f"Bladder: {self.gotchi.bladder:.2f}, Socialize: {self.gotchi.socialize:.2f}"
-
-            # self.add_info(info)
-            
+        if self.gotchi:
+            ## Below commented out line prevents self.gotchi.flavor_text from appearing in info_frame
+            # if not self.last_flavor_text or self.gotchi.flavor_text != self.last_flavor_text:
+            self.add_info(self.gotchi.flavor_text) # cmon
+            print(f"Updating terminal... flavor_text: {self.gotchi.flavor_text}, last_flavor_text: {self.last_flavor_text}")   
             # Flavor Text, and needs-messages
             if hasattr(self.gotchi, 'flavor_text'):
                 if self.gotchi.flavor_text and self.gotchi.flavor_text != self.last_flavor_text:
                     self.add_info(self.gotchi.flavor_text)
                     self.last_flavor_text = self.gotchi.flavor_text
+                    print(f"Flavor text added: {self.gotchi.flavor_text}")
                 if self.gotchi.need_message and self.gotchi.need_message != self.last_need_message:
                     self.add_info(self.gotchi.need_message)
                     self.last_need_message = self.gotchi.need_message
+                    print(f"Need message added: {self.gotchi.need_message}")
             else:
                 print("flavor_text is not set.")
