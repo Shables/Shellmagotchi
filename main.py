@@ -25,9 +25,14 @@ def main_loop(game):
 
         # Flavor text messages for info_frame
         if random.randint(1, 10) == 1:
-            game.last_flavor_text = game.gotchi.display_life_stage_flavor_text(game.last_flavor_text)
-        game.last_need_message = game.gotchi.display_need_based_messages(game.last_need_message)
+            flavor_text = game.gotchi.display_life_stage_flavor_text()
+            if flavor_text:
+                game.add_info(flavor_text)
 
+        need_message = game.gotchi.display_need_based_messages()
+        if need_message:
+            game.add_info(need_message)
+        
         game.update_ui(update_character_image=False)
         print("Main looped")
 

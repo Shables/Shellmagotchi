@@ -380,7 +380,7 @@ class Shellmagotchi(QObject):
                 self.life_stage = LifeStage.ELDER
 
 # Flavor text based on lifestage
-    def display_life_stage_flavor_text(self, last_flavor_text):
+    def display_life_stage_flavor_text(self):
         flavor_texts = {
             LifeStage.EGG: ["The egg wiggles slightly.", "A soft tapping sound can be heard from the egg", "Soft sounds can be heard from the egg", "You can feel the egg vibrating from inside"],
             LifeStage.CHILD: [f"{self.name} is giggling happily to themselves.", f"{self.name} is courageously exploring their surroundings", f"A mischevious grin spreads across {self.name}'s face."],
@@ -390,18 +390,18 @@ class Shellmagotchi(QObject):
             LifeStage.ELDER: [f"{self.name} moves slowly around the room, bones creaking, wheezing.", f"You notice {self.name} not moving... Nevermind, they were just sleeping.", f"{self.name} calls for you to bring them their pills."]
         }
         if self.life_stage in flavor_texts:
-            new_flavor_text = random.choice(flavor_texts[self.life_stage])
-            if new_flavor_text != last_flavor_text:
-                self.flavor_text = new_flavor_text
+            available_texts = [text for text in flavor_texts[self.life_stage] if text != self.last_flavor_text]
+            if available_texts:
+                self.flavor_text = random.choice(available_texts)
             else:
-                remaining_texts = [text for text in flavor_texts[self.life_stage] if text != last_flavor_text]
-                self.flavor_text = random.choice(remaining_texts) if remaining_texts else new_flavor_text
+                self.flavor_text = random.choice(flavor_texts[self.life_stage])
+            self.last_flavor_text = self.flavor_text
         else:
             self.flavor_text = ''
-
         return self.flavor_text
 
-    def display_need_based_messages(self, last_need_message):
+
+    def display_need_based_messages(self):
         messages = []
         if self.hunger < 50:
             messages.append(f"{self.name}'s tummy starts tumbling... Maybe 'feed' them?")
@@ -418,8 +418,9 @@ class Shellmagotchi(QObject):
 
         if messages:
             new_need_message = random.choice(messages)
-            if new_need_message != last_need_message:
+            if new_need_message != self.last_need_message:
                 self.need_message = new_need_message
+                self.last_need_message = new_need_message
             else:
                 self.need_message = ''
         else:
